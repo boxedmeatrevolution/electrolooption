@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://sprites/duane.png" type="Texture" id=1]
+[ext_resource path="res://scripts/Player.gd" type="Script" id=2]
+
+[node name="Player" type="Node2D"]
+position = Vector2( -1, 0 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 279, 300.5 )
+scale = Vector2( 1.6029, 1.67514 )
+texture = ExtResource( 1 )
