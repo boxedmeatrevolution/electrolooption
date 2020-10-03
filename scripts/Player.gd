@@ -44,11 +44,13 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 			if mode == MODE_PREPARE_MOVE_DRAG:
 				# Check if movement is valid.
 				var board_position = Utility.world_to_board(self.position)
+				var loop := game_state.is_occupied_by_past_player(board_position)
 				if game_state.prepare_player_move(board_position):
 					game_state.phase_complete()
-					var player_rewind := PlayerRewind.instance()
-					player_rewind.setup(game_state)
-					get_parent().add_child_below_node(self, player_rewind)
+					if not loop:
+						var player_rewind := PlayerRewind.instance()
+						player_rewind.setup(game_state)
+						get_parent().add_child_below_node(self, player_rewind)
 				else:
 					pass
 				mode = MODE_PREPARE_MOVE_RETURN

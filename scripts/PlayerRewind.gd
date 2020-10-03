@@ -13,6 +13,7 @@ func setup(game_state: GameState):
 	self.game_state = game_state
 	self.idx = game_state.get_past_player_pos().size() - 1
 	self.game_state.connect("on_player_rewind", self, "_rewind")
+	self.game_state.connect("on_player_loop", self, "_rewind")
 	position = Utility.board_to_world(self.game_state.get_past_player_pos()[idx])
 
 func _process(delta : float) -> void:
@@ -23,7 +24,7 @@ func _process(delta : float) -> void:
 		lightning.target = Utility.board_to_world(past[idx + 1])
 
 func _rewind(idx: int) -> void:
-	# On rewind, if this no longer exists, then destroy it.
+	# On rewind or loop, if this no longer exists, then destroy it.
 	if idx < self.idx:
 		queue_free()
 	elif idx == self.idx:

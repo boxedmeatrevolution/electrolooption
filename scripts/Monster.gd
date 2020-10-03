@@ -47,8 +47,11 @@ func _death(idx: int) -> void:
 	if idx == self.idx:
 		queue_free()
 
-func _prepare() -> void:
+func _prepare(idx: int) -> void:
 	# Monster AI goes here.
+	print("PRepare!!!!")
+	if idx != self.idx:
+		return
 	var player_pos := game_state.get_player_pos()
 	var pos := game_state.get_monster_pos(idx)
 	var delta_x := player_pos.x - pos.x
@@ -65,6 +68,7 @@ func _prepare() -> void:
 			IVec.new(pos.x + 1, pos.y + 1),
 		]
 		if game_state.prepare_monster_attack(idx, tiles):
+			print("Attack!!!")
 			return
 	var next_move := []
 	if abs(delta_y) > abs(delta_x):
@@ -86,5 +90,7 @@ func _prepare() -> void:
 			IVec.new(pos.x, pos.y + sign(delta_y))
 		]
 	for move in next_move:
+		print("next move: ", next_move)
 		if game_state.prepare_monster_move(idx, move):
+			print("MOve you")
 			return
