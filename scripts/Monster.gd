@@ -1,7 +1,7 @@
 extends Node2D
 
+const IVec := preload("res://scripts/IVec.gd").IVec
 const GameState := preload("res://scripts/GameState.gd")
-const IVec := preload("res://scripts/IVec.gd")
 
 var game_state : GameState
 var idx : int

@@ -1,6 +1,6 @@
 extends Node
 
-const IVec := preload("res://scripts/IVec.gd")
+const IVec := preload("res://scripts/IVec.gd").IVec
 
 const TILE_WIDTH := 192
 const TILE_HEIGHT := 112 + 2

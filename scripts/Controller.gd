@@ -4,7 +4,7 @@ const Player := preload("res://scripts/Player.gd")
 const Block := preload("res://scripts/Block.gd")
 const Monster := preload("res://scripts/Monster.gd")
 const GameState := preload("res://scripts/GameState.gd")
-const IVec := preload("res://scripts/IVec.gd")
+const IVec := preload("res://scripts/IVec.gd").IVec
 
 var player : Player
 var game_state : GameState
