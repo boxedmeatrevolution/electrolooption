@@ -15,11 +15,11 @@ var phase := 0
 var turn := 0
 
 signal on_phase_change(phase)
-signal on_player_spawn()
+signal on_player_spawn()  ## TODO
 signal on_player_move()
 signal on_player_rewind(idx)
-signal on_player_death()
-signal on_monster_spawn(idx)
+signal on_player_death()  ## TODO
+signal on_monster_spawn(idx)  ## TODO
 signal on_monster_prepare(idx)
 signal on_monster_move(idx)
 signal on_monster_attack(idx)
@@ -117,6 +117,7 @@ func _do_loop(idx):
 		_monster_pos.erase(i)
 		_prepared_monster_moves.erase(i)
 		_prepared_monster_attack.erase(i)
+		emit_signal("on_monster_death", i)
 		
 	## Remove player clones
 	if idx == 0:
@@ -151,16 +152,20 @@ func phase_complete() -> int:
 					## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
 					_do_loop(i)
 					break
+			emit_signal("on_player_move")
 		elif _prepared_player_rewind != null:
 			_player_pos = _player_rewind_pos[_prepared_player_rewind]
 			if _prepared_player_rewind == 0:
 				_player_rewind_pos = []
 			else:
 				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_move - 1)
+			emit_signal("on_player_rewind")
 		## Reset "prepared" actions
 		_prepared_player_move = null
 		_prepared_player_rewind = null
 	elif phase == PHASE_MONSTER_ATTACK:
+		for idx in _prepared_monster_attack.keys():
+			emit_signal("on_monster_attack", idx)
 		## Reset prepared attacks
 		_prepared_monster_attack = {}
 	elif phase == PHASE_MONSTER_MOVE:
@@ -170,6 +175,12 @@ func phase_complete() -> int:
 				_monster_pos[idx] = _prepared_monster_moves[idx]
 		## Reset prepared moves
 		_prepared_monster_moves = {}
+	elif phase == PHASE_MONSTER_SPAWN:
+		for idx in _prepared_monster_spawn.keys():
+			emit_signal("on_monster_spawn", idx)
+		## Reset spawns
+		_prepared_monster_spawn = {}
+	emit_signal("on_phase_change", phase)
 	return phase
 
 func _is_threatened(pos: IVec) -> bool:
@@ -186,11 +197,35 @@ func _is_occupied_by_block(pos: IVec) -> bool:
 	return false
 	
 func _will_be_occupied_by_monster(pos: IVec) -> bool:
-	for mpos in _prepared_monster_moves.values():
+	for idx in _monsters.keys():
+		var mpos = _monster_pos[idx]
+		if idx in _prepared_monster_moves:
+			mpos = _prepared_monster_moves[idx]
 		if pos.eq(mpos):
 			return true
 	return false
 
+func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
+	## Checks if a - b - c lie on a line 
+	## Any orientation, but b in the middle. 
+	## If a,b or b,c overlap, then always TRUE
+	var b_delta = b.minus(a)
+	var c_delta = c.minus(a)
+	if b_delta.eq(c_delta):
+		return true
+	elif b_delta.x != 0:
+		var scale = float(c_delta.x) / float(b_delta.x)
+		var scaled_y = int(round(b_delta.y * scale))
+		if scaled_y == c_delta.y and scale > 1:
+			return true
+	elif b_delta.y != 0:
+		var scale = float(c_delta.y) / float(b_delta.y)
+		var scaled_x = round(b_delta.x * scale)
+		if scaled_x == c_delta.x and scale > 1:
+			return true
+	else:
+		return true
+	return false
 	
 #################
 ## PLAYER!!!!   #
@@ -202,25 +237,14 @@ func test_player_move(pos: IVec) -> bool:
 	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
 	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
 		## check if the square is threatened
-		if _is_threatened(pos) or _is_occupied_by_block(pos) or _will_be_occupied_by_monster(pos):
+		if _is_threatened(pos):
 			return false
 		## check if moving to new position requires traversing through a wall (this is not allowed)
 		for bpos in _block_pos:
-			## check if the block's position vector can be extended in the +ve
-			## direction such that it overlaps with the player's position
-			var block_delta = bpos.minus(_player_pos)
-			var new_pos_delta = pos.minus(_player_pos)
-			if block_delta.x != 0:
-				var scale = float(new_pos_delta.x) / float(block_delta.x)
-				var scaled_y = int(round(block_delta.y * scale))
-				if scaled_y == new_pos_delta.y and scale > 1:
-					return false
-			elif block_delta.y != 0:
-				var scale = float(new_pos_delta.y) / float(block_delta.y)
-				var scaled_x = round(block_delta.x * scale)
-				if scaled_x == new_pos_delta.x and scale > 1:
-					return false
-			else:
+			if _make_a_line(_player_pos, bpos, pos):
+				return false
+		for mpos in _monster_pos.values():
+			if _make_a_line(_player_pos, mpos, pos):
 				return false
 		return true
 		
@@ -265,6 +289,7 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	if is_moving and is_on_board and !_is_occupied_by_block(pos) and !_will_be_occupied_by_monster(pos):
 		return false
 	_prepared_monster_moves[idx] = pos.copy()
+	emit_signal("on_monster_prepare", idx)
 	return true
 	
 func get_monster_move(idx: int) -> IVec:
@@ -274,6 +299,7 @@ func get_monster_move(idx: int) -> IVec:
 func prepare_monster_attack(idx: int, threatened_tiles: Array) -> bool:
 	assert(idx in _monsters)
 	_prepared_monster_attack[idx] = threatened_tiles
+	emit_signal("on_monster_prepare", idx)
 	return true
 	
 func get_monster_pos(idx: int) -> IVec:
