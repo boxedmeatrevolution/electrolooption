@@ -18,6 +18,7 @@ signal on_phase_change(phase)
 signal on_player_spawn()  ## TODO
 signal on_player_move()
 signal on_player_rewind(idx)
+signal on_player_loop()
 signal on_player_death()  ## TODO
 signal on_monster_spawn(idx)  ## TODO
 signal on_monster_prepare(idx)
@@ -151,6 +152,7 @@ func phase_complete() -> int:
 				if _player_rewind_pos[i].eq(_player_pos):
 					## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
 					_do_loop(i)
+					emit_signal("on_player_loop")
 					break
 			emit_signal("on_player_move")
 		elif _prepared_player_rewind != null:
@@ -175,6 +177,9 @@ func phase_complete() -> int:
 				_monster_pos[idx] = _prepared_monster_moves[idx]
 		## Reset prepared moves
 		_prepared_monster_moves = {}
+	elif phase == PHASE_MONSTER_PREPARE:
+		for idx in _monsters.keys():
+			emit_signal("on_monster_prepare", idx)
 	elif phase == PHASE_MONSTER_SPAWN:
 		for idx in _prepared_monster_spawn.keys():
 			emit_signal("on_monster_spawn", idx)
@@ -183,20 +188,20 @@ func phase_complete() -> int:
 	emit_signal("on_phase_change", phase)
 	return phase
 
-func _is_threatened(pos: IVec) -> bool:
+func is_threatened(pos: IVec) -> bool:
 	for threatened in _prepared_monster_attack.values():
 		for tpos in threatened:
 			if pos.eq(tpos):
 				return true
 	return false
 
-func _is_occupied_by_block(pos: IVec) -> bool:
+func is_occupied_by_block(pos: IVec) -> bool:
 	for bpos in _block_pos:
 		if pos.eq(bpos):
 			return true
 	return false
 	
-func _will_be_occupied_by_monster(pos: IVec) -> bool:
+func will_be_occupied_by_monster(pos: IVec) -> bool:
 	for idx in _monsters.keys():
 		var mpos = _monster_pos[idx]
 		if idx in _prepared_monster_moves:
@@ -204,6 +209,12 @@ func _will_be_occupied_by_monster(pos: IVec) -> bool:
 		if pos.eq(mpos):
 			return true
 	return false
+
+func is_occupied_by_past_player(pos: IVec) -> bool:
+	for p in _player_rewind_pos:
+		if pos.eq(p):
+			return true
+	return false 
 
 func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
 	## Checks if a - b - c lie on a line 
@@ -226,7 +237,7 @@ func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
 	else:
 		return true
 	return false
-	
+
 #################
 ## PLAYER!!!!   #
 #################
@@ -237,7 +248,7 @@ func test_player_move(pos: IVec) -> bool:
 	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
 	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
 		## check if the square is threatened
-		if _is_threatened(pos):
+		if is_threatened(pos):
 			return false
 		## check if moving to new position requires traversing through a wall (this is not allowed)
 		for bpos in _block_pos:
@@ -249,14 +260,16 @@ func test_player_move(pos: IVec) -> bool:
 		return true
 		
 	return false
-	
+
+
+
 func test_player_rewind(idx: int) -> bool:
 	## check if valid index
 	if idx < 0 or idx >= _player_rewind_pos.size():
 		return false
 	## rewind is not allowed if it causes the player to be threatened
 	var pos = _player_rewind_pos[idx]
-	if _is_threatened(pos):
+	if is_threatened(pos):
 		return false
 	return true
 	
@@ -286,7 +299,7 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	var mpos = _monster_pos[idx]
 	var is_moving = !pos.eq(mpos)
 	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
-	if is_moving and is_on_board and !_is_occupied_by_block(pos) and !_will_be_occupied_by_monster(pos):
+	if is_moving and is_on_board and !is_occupied_by_block(pos) and !will_be_occupied_by_monster(pos):
 		return false
 	_prepared_monster_moves[idx] = pos.copy()
 	emit_signal("on_monster_prepare", idx)
