@@ -29,3 +29,12 @@ func world_to_board(screen: Vector2) -> IVec:
 	var board_pos := transform_inv * screen
 	var board := IVec.new(int(board_pos.x + 0.5), int(board_pos.y + 0.5))
 	return board
+	
+func _copy_vec(vec) -> IVec:
+	return IVec.new(vec.x, vec.y)
+
+func _minus_vec(a, b) -> IVec:
+	return IVec.new(a.x - b.x, a.y - b.y)
+
+func _add_vec(a, b) -> IVec:
+	return IVec.new(a.x + b.x, a.y + b.y)

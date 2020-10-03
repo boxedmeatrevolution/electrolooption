@@ -6,11 +6,14 @@ class IVec:
 		self.x = x
 		self.y = y
 		
-	func eq(other: IVec) -> bool:
+	func eq(other) -> bool:
 		return x == other.x and y == other.y
 		
-	func copy() -> IVec:
-		return IVec.new(x, y)
+	func copy():
+		return Utility._copy_vec(self)
 		
-	func minus(other: IVec) -> IVec:
-		return IVec.new(x - other.x, y - other.y)
+	func minus(other):
+		return Utility._minus_vec(self, other)
+		
+	func add(other):
+		return Utility._add_vec(self, other)
