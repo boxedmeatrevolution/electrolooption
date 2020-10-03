@@ -17,7 +17,7 @@ func _update_transform() -> void:
 	transform = Transform2D(
 		Vector2(0.5 * TILE_WIDTH, 0.5 * TILE_HEIGHT),
 		Vector2(0.5 * TILE_WIDTH, -0.5 * TILE_HEIGHT),
-		BOARD_CENTER + 0.5 * NUM_TILES_ACROSS * TILE_WIDTH * Vector2.LEFT
+		BOARD_CENTER + 0.5 * (NUM_TILES_ACROSS - 1) * TILE_WIDTH * Vector2.LEFT
 	)
 	transform_inv = transform.affine_inverse()
 
