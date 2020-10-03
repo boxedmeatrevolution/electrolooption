@@ -31,6 +31,7 @@ var _monsters := {}
 var _monster_pos := {}
 var _prepared_monster_moves := {}
 var _prepared_monster_attack := {}
+var _prepared_monster_spawn := {}
 var _prepared_player_move = null
 var _prepared_player_rewind = null
 var _player_pos = null
@@ -178,6 +179,19 @@ func _is_threatened(pos: IVec) -> bool:
 				return true
 	return false
 
+func _is_occupied_by_block(pos: IVec) -> bool:
+	for bpos in _block_pos:
+		if pos.eq(bpos):
+			return true
+	return false
+	
+func _will_be_occupied_by_monster(pos: IVec) -> bool:
+	for mpos in _prepared_monster_moves.values():
+		if pos.eq(mpos):
+			return true
+	return false
+
+	
 #################
 ## PLAYER!!!!   #
 #################
@@ -188,9 +202,9 @@ func test_player_move(pos: IVec) -> bool:
 	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
 	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
 		## check if the square is threatened
-		if _is_threatened(pos):
+		if _is_threatened(pos) or _is_occupied_by_block(pos) or _will_be_occupied_by_monster(pos):
 			return false
-		## check if the square is blocked by a block
+		## check if moving to new position requires traversing through a wall (this is not allowed)
 		for bpos in _block_pos:
 			## check if the block's position vector can be extended in the +ve
 			## direction such that it overlaps with the player's position
@@ -201,6 +215,7 @@ func test_player_move(pos: IVec) -> bool:
 			if scaled_y == _player_pos.y and scale > 1:
 				return false
 		return true
+		
 	return false
 	
 func test_player_rewind(idx: int) -> bool:
@@ -216,7 +231,7 @@ func test_player_rewind(idx: int) -> bool:
 func prepare_player_move(pos: IVec) -> bool:
 	if !test_player_move(pos):
 		return false
-	_prepared_player_move = pos
+	_prepared_player_move = pos.copy()
 	return true
 
 func prepare_player_rewind(idx: int) -> bool:
@@ -235,25 +250,36 @@ func get_past_player_pos() -> Array:
 ## MONSTERS!!!! #
 #################
 func prepare_monster_move(idx: int, pos: IVec) -> bool:
+	assert(idx in _monsters)
 	var mpos = _monster_pos[idx]
-	var is_moving = !pos.eq(_player_pos)
+	var is_moving = !pos.eq(mpos)
 	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
-	return false
+	if is_moving and is_on_board and !_is_occupied_by_block(pos) and !_will_be_occupied_by_monster(pos):
+		return false
+	_prepared_monster_moves[idx] = pos.copy()
+	return true
 	
 func get_monster_move(idx: int) -> IVec:
-	return IVec.new(0,0)
+	assert(idx in _monsters)
+	return _prepared_monster_moves[idx]
 	
 func prepare_monster_attack(idx: int, threatened_tiles: Array) -> bool:
-	return false
+	assert(idx in _monsters)
+	_prepared_monster_attack[idx] = threatened_tiles
+	return true
 	
 func get_monster_pos(idx: int) -> IVec:
-	return IVec.new(0,0)
+	assert(idx in _monsters)
+	return _monster_pos[idx]
 	
 func get_monster_attack(idx: int) -> Array:
-	return []
+	assert(idx in _monsters)
+	return _prepared_monster_attack[idx]
 	
 func prepare_monster_spawn(pos: IVec) -> int:
-	return 0
-
-	
+	var idx = _get_new_id()
+	_monsters[idx] = true
+	_monster_pos[idx] = pos.copy()
+	_prepared_monster_spawn[idx] = pos.copy()
+	return idx
 
