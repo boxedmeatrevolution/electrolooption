@@ -19,13 +19,13 @@ func _update_transform() -> void:
 		Vector2(0.5 * TILE_WIDTH, -0.5 * TILE_HEIGHT),
 		BOARD_CENTER + 0.5 * NUM_TILES_ACROSS * TILE_WIDTH * Vector2.LEFT
 	)
-	transform_inv = transform.inverse()
+	transform_inv = transform.affine_inverse()
 
 func board_to_world(board: IVec) -> Vector2:
 	var board_pos := Vector2(board.x, board.y)
 	return transform * board_pos
 
 func world_to_board(screen: Vector2) -> IVec:
-	var board_pos := transform.inverse() * screen
+	var board_pos := transform_inv * screen
 	var board := IVec.new(int(board_pos.x + 0.5), int(board_pos.y + 0.5))
 	return board

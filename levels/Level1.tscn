@@ -11,25 +11,25 @@
 [node name="Controller" parent="." instance=ExtResource( 5 )]
 
 [node name="Background" type="Sprite" parent="."]
-position = Vector2( 908.866, 545.467 )
+position = Vector2( 960, 540 )
 texture = ExtResource( 1 )
 
 [node name="Main" type="YSort" parent="."]
 
 [node name="Player" parent="Main" instance=ExtResource( 2 )]
-position = Vector2( 907.189, 488.496 )
+position = Vector2( 951.51, 480.134 )
 
 [node name="Monster" parent="Main" instance=ExtResource( 3 )]
-position = Vector2( 1197.07, 540.352 )
+position = Vector2( 1248.08, 539.516 )
 
 [node name="Monster2" parent="Main" instance=ExtResource( 3 )]
-position = Vector2( 620.055, 660.159 )
+position = Vector2( 677.756, 649.288 )
 
 [node name="Block" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 908.718, 718.209 )
+position = Vector2( 863.718, 656.209 )
 
 [node name="Block2" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 1100.41, 718.019 )
+position = Vector2( 1055.41, 656.019 )
 
 [node name="Block3" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 1005.06, 773.049 )
+position = Vector2( 960.06, 711.049 )
