@@ -8,6 +8,7 @@ const IVec := preload("res://scripts/IVec.gd").IVec
 
 var player : Player
 var game_state : GameState
+var phase_timer := 0.0
 
 func _ready() -> void:
 	var player : Player
@@ -33,4 +34,9 @@ func _ready() -> void:
 	player.game_state = game_state
 
 func _process(delta: float) -> void:
-	pass
+	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
+		phase_timer -= delta
+		if phase_timer < 0:
+			game_state.phase_complete()
+			phase_timer = 0.5
+			print("Phaes is ", game_state.phase)

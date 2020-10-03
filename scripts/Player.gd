@@ -50,7 +50,5 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 					player_rewind.setup(game_state)
 					get_parent().add_child_below_node(self, player_rewind)
 				else:
-					print(game_state.get_player_pos().x, " ", game_state.get_player_pos().y)
-					print(board_position.x, " ", board_position.y)
-					print("INVALID MOVE DUMMY")
+					pass
 				mode = MODE_PREPARE_MOVE_RETURN

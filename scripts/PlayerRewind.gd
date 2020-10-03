@@ -21,7 +21,8 @@ func _rewind(idx: int) -> void:
 		queue_free()
 
 func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
-	if event.type == InputEvent.MOUSE_BUTTON && event.pressed && event.doubleclick:
-		if game_state.phase == GameState.PHASE_PLAYER_PREPARE:
-			if game_state.prepare_player_rewind(idx):
-				game_state.phase_complete()
+	if event is InputEventMouseButton:
+		if event.pressed && event.doubleclick:
+			if game_state.phase == GameState.PHASE_PLAYER_PREPARE:
+				if game_state.prepare_player_rewind(idx):
+					game_state.phase_complete()
