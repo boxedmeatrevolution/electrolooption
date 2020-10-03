@@ -18,7 +18,7 @@ signal on_phase_change(phase)
 signal on_player_spawn()  ## TODO
 signal on_player_move()
 signal on_player_rewind(idx)
-signal on_player_loop()
+signal on_player_loop(idx)
 signal on_player_death()  ## TODO
 signal on_monster_spawn(idx)  ## TODO
 signal on_monster_prepare(idx)
@@ -152,7 +152,7 @@ func phase_complete() -> int:
 				if _player_rewind_pos[i].eq(_player_pos):
 					## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
 					_do_loop(i)
-					emit_signal("on_player_loop")
+					emit_signal("on_player_loop", i)
 					break
 			emit_signal("on_player_move")
 		elif _prepared_player_rewind != null:
@@ -260,8 +260,6 @@ func test_player_move(pos: IVec) -> bool:
 		return true
 		
 	return false
-
-
 
 func test_player_rewind(idx: int) -> bool:
 	## check if valid index
