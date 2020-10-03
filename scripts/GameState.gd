@@ -198,7 +198,7 @@ func _will_be_occupied_by_monster(pos: IVec) -> bool:
 func test_player_move(pos: IVec) -> bool:
 	var is_moving = !pos.eq(_player_pos)
 	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
-	var is_cardinal = _player_pos.x or pos.y == _player_pos.y
+	var is_cardinal = pos.x == _player_pos.x or pos.y == _player_pos.y
 	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
 	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
 		## check if the square is threatened
@@ -210,9 +210,17 @@ func test_player_move(pos: IVec) -> bool:
 			## direction such that it overlaps with the player's position
 			var block_delta = bpos.minus(_player_pos)
 			var new_pos_delta = pos.minus(_player_pos)
-			var scale = new_pos_delta.x / block_delta.x
-			var scaled_y = round(block_delta.y * scale)
-			if scaled_y == _player_pos.y and scale > 1:
+			if block_delta.x != 0:
+				var scale = new_pos_delta.x / block_delta.x
+				var scaled_y = round(block_delta.y * scale)
+				if scaled_y == _player_pos.y and scale > 1:
+					return false
+			elif block_delta.y != 0:
+				var scale = new_pos_delta.y / block_delta.y
+				var scaled_x = round(block_delta.x * scale)
+				if scaled_x == _player_pos.x and scale > 1:
+					return false
+			else:
 				return false
 		return true
 		
