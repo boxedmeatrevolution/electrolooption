@@ -16,8 +16,22 @@ _global_script_class_icons={
 [application]
 
 config/name="Ludum Dare 47"
-run/main_scene="res://entities/Player.tscn"
+run/main_scene="res://levels/Level1.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Utility="*res://scripts/Utility.gd"
+
+[display]
+
+window/size/width=1920
+window/size/height=1080
+window/size/resizable=false
+window/size/borderless=true
+window/size/fullscreen=true
+window/stretch/mode="2d"
+window/stretch/aspect="keep_width"
 
 [rendering]
 
