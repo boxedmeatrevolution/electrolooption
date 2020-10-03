@@ -10,7 +10,8 @@ var player : Player
 var game_state : GameState
 
 func _ready() -> void:
-	var main := get_tree().get_root().find_node("Main")
+	var player : Player
+	var main := get_tree().get_root().find_node("Main", true, false)
 	var blocks := []
 	var monsters := []
 	var monster_nodes := []
@@ -22,7 +23,6 @@ func _ready() -> void:
 		elif child is Monster:
 			monsters.append(Utility.world_to_board(child.position))
 			monster_nodes.append(child)
-	player = get_tree().get_root().find_node("Player")
 	game_state = GameState.new(
 		Utility.world_to_board(player.position),
 		monsters,

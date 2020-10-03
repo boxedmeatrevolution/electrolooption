@@ -25,7 +25,7 @@ signal on_monster_move(idx)
 signal on_monster_attack(idx)
 signal on_monster_death(idx)
 
-var _next_id := 0
+var _next_id := -1
 var _block_pos := []
 var _monsters := {}
 var _monster_pos := {}
