@@ -10,6 +10,7 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_group_": true
 }
+target = Vector2( 64, 0 )
 
 [node name="Line2D" type="Line2D" parent="."]
 width = 6.0
