@@ -75,11 +75,11 @@ func _do_loop(idx):
 		var dist = next_pt.minus(pt)
 		var unit_dist = IVec.new(0,0)
 		if dist.x != 0 and dist.y == 0:
-			unit_dist = IVec.new(round(abs(dist.x) / dist.x), 0)
+			unit_dist = IVec.new(round(float(abs(dist.x)) / float(dist.x)), 0)
 		elif dist.x == 0 and dist.y != 0:
-			unit_dist = IVec.new(0, round(abs(dist.y) / dist.y))
+			unit_dist = IVec.new(0, round(float(abs(dist.y)) / float(dist.y)))
 		elif dist.x != 0 and dist.y != 0:
-			unit_dist = IVec.new(round(abs(dist.x) / dist.x), round(abs(dist.y) / dist.y))
+			unit_dist = IVec.new(round(float(abs(dist.x)) / float(dist.x)), round(float(abs(dist.y)) / float(dist.y)))
 		
 		if unit_dist.x == 0 and unit_dist.y == 0:
 			continue
@@ -211,14 +211,14 @@ func test_player_move(pos: IVec) -> bool:
 			var block_delta = bpos.minus(_player_pos)
 			var new_pos_delta = pos.minus(_player_pos)
 			if block_delta.x != 0:
-				var scale = new_pos_delta.x / block_delta.x
-				var scaled_y = round(block_delta.y * scale)
-				if scaled_y == _player_pos.y and scale > 1:
+				var scale = float(new_pos_delta.x) / float(block_delta.x)
+				var scaled_y = int(round(block_delta.y * scale))
+				if scaled_y == new_pos_delta.y and scale > 1:
 					return false
 			elif block_delta.y != 0:
-				var scale = new_pos_delta.y / block_delta.y
+				var scale = float(new_pos_delta.y) / float(block_delta.y)
 				var scaled_x = round(block_delta.x * scale)
-				if scaled_x == _player_pos.x and scale > 1:
+				if scaled_x == new_pos_delta.x and scale > 1:
 					return false
 			else:
 				return false
