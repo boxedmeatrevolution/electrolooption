@@ -9,10 +9,6 @@
 
 [node name="Level1" type="Node2D"]
 
-[node name="Lightning" parent="." instance=ExtResource( 6 )]
-position = Vector2( 233.311, 186.481 )
-target = Vector2( 300, 186 )
-
 [node name="Controller" parent="." instance=ExtResource( 5 )]
 
 [node name="Background" type="Sprite" parent="."]
@@ -38,3 +34,7 @@ position = Vector2( 1055.41, 656.019 )
 
 [node name="Block3" parent="Main" instance=ExtResource( 4 )]
 position = Vector2( 960.06, 711.049 )
+
+[node name="Lightning" parent="." instance=ExtResource( 6 )]
+position = Vector2( 233.311, 186.481 )
+target = Vector2( 1000, 400 )
