@@ -1,4 +1,3 @@
-extends Node2D
 const IVec = preload("res://scripts/IVec.gd")
 
 const PHASE_PLAYER_PREPARE := 0
@@ -15,12 +14,13 @@ var turn := 0
 
 signal on_phase_change(phase)
 signal on_player_spawn()
-signal on_player_pre_action()
-signal on_player_post_action()
+signal on_player_move()
+signal on_player_rewind(idx)
 signal on_player_death()
 signal on_monster_spawn(idx)
 signal on_monster_prepare(idx)
-signal on_monster_action(idx)
+signal on_monster_move(idx)
+signal on_monster_attack(idx)
 signal on_monster_death(idx)
 
 var _board = []
@@ -32,7 +32,7 @@ var _prepared_player_rewind = []
 var _player_pos = IVec.new(0,0)
 var _player_rewind_pos = []
 
-func setup(player_pos: IVec, monster_pos: Array, block_pos: Array):
+func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
 	pass
 
 func phase_complete() -> int:
