@@ -7,15 +7,15 @@ var rng := RandomNumberGenerator.new()
 
 const LENGTH_PER_SEGMENT := 30.0
 const NORMAL := 32.0
-const JITTER_TIME := 1
-const JITTER_SPACE := 0.01
+const JITTER_TIME := 10
+const JITTER_SPACE := 100
 
 func _ready() -> void:
 	rng.randomize()
 	var distance := (self.global_position - target).length()
 	var num_segments := max(int(distance / LENGTH_PER_SEGMENT), 2)
 	for i in range(0, num_segments):
-		points.append(rng.randfn(0.0, distance / num_segments / JITTER_SPACE))
+		points.append(rng.randfn(0.0, distance / (num_segments - 1) / JITTER_SPACE))
 		line.add_point(Vector2.ZERO)
 
 
@@ -32,7 +32,7 @@ func _process(delta: float) -> void:
 	for i in range(1, points.size() - 1):
 		var shift := abs(Utility.gaussian(0.0, JITTER_TIME * delta))
 		var diff : float = (points[i - 1] - 2.0 * points[i] + points[i + 1]) / pow((distance / (points.size() - 1)), 2)
-		if randf() < 0.5 - diff / JITTER_SPACE / JITTER_SPACE:
+		if randf() < 0.5 - diff * JITTER_SPACE * JITTER_SPACE:
 			points[i] -= shift
 		else:
 			points[i] += shift
