@@ -300,7 +300,6 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	if is_moving and is_on_board and !is_occupied_by_block(pos) and !will_be_occupied_by_monster(pos):
 		return false
 	_prepared_monster_moves[idx] = pos.copy()
-	emit_signal("on_monster_prepare", idx)
 	return true
 	
 func get_monster_move(idx: int) -> IVec:
@@ -310,7 +309,6 @@ func get_monster_move(idx: int) -> IVec:
 func prepare_monster_attack(idx: int, threatened_tiles: Array) -> bool:
 	assert(idx in _monsters)
 	_prepared_monster_attack[idx] = threatened_tiles
-	emit_signal("on_monster_prepare", idx)
 	return true
 	
 func get_monster_pos(idx: int) -> IVec:
