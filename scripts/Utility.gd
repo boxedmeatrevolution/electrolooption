@@ -13,6 +13,9 @@ var transform_inv : Transform2D
 func _ready() -> void:
 	_update_transform()
 
+func gaussian(mean: float = 0.0, std: float = 1.0) -> float:
+	return std * sqrt(-2.0 * log(randf())) * cos(2.0 * PI * randf()) + mean
+
 func _update_transform() -> void:
 	transform = Transform2D(
 		Vector2(0.5 * TILE_WIDTH, 0.5 * TILE_HEIGHT),
