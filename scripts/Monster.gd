@@ -27,8 +27,8 @@ func _process(delta: float) -> void:
 		pass
 	elif mode == MODE_MOVING:
 		var target := Utility.board_to_world(self.game_state.get_monster_pos(idx))
-		position += -clamp(100 * delta, 0, 1) * (position - target)
-		if (position - target).length_squared() < 20 * 20:
+		position += -clamp(10 * delta, 0, 1) * (position - target)
+		if (position - target).length_squared() < 5 * 5:
 			position = target
 			mode = MODE_DEFAULT
 	elif mode == MODE_ATTACKING:
@@ -37,11 +37,13 @@ func _process(delta: float) -> void:
 			mode = MODE_DEFAULT
 
 func _move(idx: int) -> void:
-	mode = MODE_MOVING
+	if idx == self.idx:
+		mode = MODE_MOVING
 
 func _attack(idx: int) -> void:
-	mode = MODE_ATTACKING
-	attack_timer = 1.0
+	if idx == self.idx:
+		mode = MODE_ATTACKING
+		attack_timer = 1.0
 
 func _death(idx: int) -> void:
 	if idx == self.idx:
@@ -89,8 +91,9 @@ func _prepare(idx: int) -> void:
 			IVec.new(pos.x + sign(delta_x), pos.y + sign(delta_y)),
 			IVec.new(pos.x, pos.y + sign(delta_y))
 		]
+	print("at: ", pos.x, ", ", pos.y)
 	for move in next_move:
-		print("next move: ", next_move)
+		print("next move: ", move.x, ", ", move.y)
 		if game_state.prepare_monster_move(idx, move):
 			print("MOve you")
 			return

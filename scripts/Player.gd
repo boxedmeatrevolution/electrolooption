@@ -18,8 +18,8 @@ func _process(delta: float) -> void:
 		self.position = Utility.board_to_world(game_state.get_player_pos())
 	elif mode == MODE_PREPARE_MOVE_RETURN || mode == MODE_REWIND:
 		var target := Utility.board_to_world(game_state.get_player_pos())
-		position += -clamp(100 * delta, 0, 1) * (position - target)
-		if (position - target).length_squared() < 20 * 20:
+		position += -clamp(15 * delta, 0, 1) * (position - target)
+		if (position - target).length_squared() < 10 * 10:
 			position = target
 			mode = MODE_DEFAULT
 	elif mode == MODE_PREPARE_MOVE_DRAG:
