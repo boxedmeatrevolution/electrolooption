@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://sprites/player.png" type="Texture" id=1]
 [ext_resource path="res://scripts/PlayerRewind.gd" type="Script" id=2]
+[ext_resource path="res://entities/Effects/Lightning.tscn" type="PackedScene" id=3]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 50.0
@@ -12,6 +13,8 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_group_": true
 }
+
+[node name="Lightning" parent="." instance=ExtResource( 3 )]
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, -40 )
