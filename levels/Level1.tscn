@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://tileset/dance_floor.png" type="Texture" id=1]
+
+[node name="Level1" type="Node2D"]
+
+[node name="dance_floor" type="Sprite" parent="."]
+position = Vector2( 908.866, 545.467 )
+texture = ExtResource( 1 )
