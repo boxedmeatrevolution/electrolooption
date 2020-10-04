@@ -11,6 +11,9 @@ const NUM_PHASES := 6
 const WIDTH := 8
 const HEIGHT := 8
 
+var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
+			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
+
 var phase := 0
 var turn := 0
 
@@ -37,6 +40,7 @@ var _prepared_player_move = null
 var _prepared_player_rewind = null
 var _player_pos = null
 var _player_rewind_pos := []
+var _legal_player_moves := []
 
 func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
 	_player_pos = player_pos
@@ -46,6 +50,7 @@ func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
 		_monster_pos[idx] = pos
 	for pos in block_pos:
 		_block_pos.append(pos)
+	_legal_player_moves = _get_legal_player_moves()
 
 func _get_new_id() -> int:
 	_next_id += 1
@@ -143,6 +148,7 @@ func phase_complete() -> int:
 	if phase == PHASE_PLAYER_PREPARE:
 		## Start of a new turn!
 		turn += 1
+		_legal_player_moves = _get_legal_player_moves()
 	elif phase == PHASE_PLAYER_ACTION:
 		## Player either moves or rewinds
 		if _prepared_player_move != null:
@@ -212,6 +218,13 @@ func will_be_occupied_by_monster(pos: IVec) -> bool:
 			return true
 	return false
 
+func is_occupied_by_monster(pos:IVec) -> bool:
+	for idx in _monsters.keys():
+		var mpos = _monster_pos[idx]
+		if pos.eq(mpos):
+			return true
+	return false
+
 func is_occupied_by_past_player(pos: IVec) -> bool:
 	for p in _player_rewind_pos:
 		if pos.eq(p):
@@ -243,24 +256,40 @@ func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
 #################
 ## PLAYER!!!!   #
 #################
+func _get_legal_player_moves() -> Array:
+	var ret = []
+	for dir in DIRS:
+		var pos = _player_pos.copy()
+		while true:
+			pos = pos.add(dir)
+			var is_off_board = pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT
+			if is_off_board or is_occupied_by_block(pos) or is_occupied_by_monster(pos):
+				break
+			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
+				continue
+			ret.append(pos)
+	return ret
+	
 func test_player_move(pos: IVec) -> bool:
-	var is_moving = !pos.eq(_player_pos)
-	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
-	var is_cardinal = pos.x == _player_pos.x or pos.y == _player_pos.y
-	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
-	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
-		## check if the square is threatened
-		if is_threatened(pos) and !will_be_occupied_by_monster(pos):
-			return false
-		## check if moving to new position requires traversing through a wall (this is not allowed)
-		for bpos in _block_pos:
-			if _make_a_line(_player_pos, bpos, pos):
-				return false
-		for mpos in _monster_pos.values():
-			if _make_a_line(_player_pos, mpos, pos):
-				return false
-		return true
-		
+#	var is_moving = !pos.eq(_player_pos)
+#	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
+#	var is_cardinal = pos.x == _player_pos.x or pos.y == _player_pos.y
+#	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
+#	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
+#		## check if the square is threatened
+#		if is_threatened(pos) and !will_be_occupied_by_monster(pos):
+#			return false
+#		## check if moving to new position requires traversing through a wall (this is not allowed)
+#		for bpos in _block_pos:
+#			if _make_a_line(_player_pos, bpos, pos):
+#				return false
+#		for mpos in _monster_pos.values():
+#			if _make_a_line(_player_pos, mpos, pos):
+#				return false
+#		return true
+	for legal in _legal_player_moves:
+		if pos.eq(legal):
+			return true
 	return false
 
 func test_player_rewind(idx: int) -> bool:
