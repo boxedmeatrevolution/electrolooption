@@ -2,6 +2,7 @@ extends Node2D
 
 const IVec := preload("res://scripts/IVec.gd").IVec
 const GameState := preload("res://scripts/GameState.gd")
+const MonsterDeath := preload("res://entities/MonsterDeath.tscn")
 
 var game_state : GameState
 var idx : int
@@ -47,6 +48,9 @@ func _attack(idx: int) -> void:
 
 func _death(idx: int) -> void:
 	if idx == self.idx:
+		var monster_death := MonsterDeath.instance()
+		monster_death.global_position = self.global_position
+		get_parent().add_child(monster_death)
 		queue_free()
 
 func _prepare(idx: int) -> void:

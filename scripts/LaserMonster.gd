@@ -17,7 +17,12 @@ func _prepare(idx: int) -> void:
 		if game_state.prepare_monster_attack(idx, tiles):
 			return
 	var next_move := []
-	if abs(delta_y) >= abs(delta_x) && abs(delta_y) > SHOOT_RANGE || abs(delta_x) > abs(delta_y) && abs(delta_x) <= SHOOT_RANGE:
+	if abs(delta_y) == 1 && abs(delta_x) == 1:
+		next_move = [
+			IVec.new(pos.x + sign(delta_x), pos.y),
+			IVec.new(pos.x, pos.y + sign(delta_y))
+		]
+	elif abs(delta_y) >= abs(delta_x) && abs(delta_y) > SHOOT_RANGE || abs(delta_x) > abs(delta_y) && abs(delta_x) <= SHOOT_RANGE:
 		next_move = [
 			IVec.new(pos.x, pos.y + sign(delta_y)),
 			IVec.new(pos.x + sign(delta_x), pos.y + sign(delta_y)),

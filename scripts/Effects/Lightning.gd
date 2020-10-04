@@ -4,6 +4,7 @@ onready var line := $Line2D
 export var target := Vector2(0, 0)
 var points := []
 var rng := RandomNumberGenerator.new()
+var segs_start = null
 
 const LENGTH_PER_SEGMENT := 30.0
 const NORMAL := 32.0
@@ -14,6 +15,8 @@ func _ready() -> void:
 	rng.randomize()
 	var distance := (self.global_position - target).length()
 	var num_segments := max(int(distance / LENGTH_PER_SEGMENT), 2)
+	if segs_start != null:
+		num_segments = segs_start
 	for i in range(0, num_segments):
 		points.append(0.0)
 		line.add_point(Vector2.ZERO)
