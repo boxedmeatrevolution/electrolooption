@@ -72,22 +72,30 @@ func _prepare(idx: int) -> void:
 			return
 	var next_move := []
 	if abs(delta_y) > abs(delta_x):
+		var delta_x_sign : int = sign(delta_x) if delta_x != 0 else 1
 		next_move = [
 			IVec.new(pos.x, pos.y + sign(delta_y)),
 			IVec.new(pos.x + sign(delta_x), pos.y + sign(delta_y)),
-			IVec.new(pos.x + sign(delta_x), pos.y)
+			IVec.new(pos.x + sign(delta_x), pos.y),
+			IVec.new(pos.x + delta_x_sign, pos.y - sign(delta_y)),
+			IVec.new(pos.x - delta_x_sign, pos.y + sign(delta_y)),
 		]
 	elif abs(delta_y) == abs(delta_x):
 		next_move = [
 			IVec.new(pos.x + sign(delta_x), pos.y + sign(delta_y)),
 			IVec.new(pos.x, pos.y + sign(delta_y)),
-			IVec.new(pos.x + sign(delta_x), pos.y)
+			IVec.new(pos.x + sign(delta_x), pos.y),
+			IVec.new(pos.x + sign(delta_x), pos.y - sign(delta_y)),
+			IVec.new(pos.x - sign(delta_x), pos.y + sign(delta_y)),
 		]
 	else:
+		var delta_y_sign : int = sign(delta_y) if delta_y != 0 else 1
 		next_move = [
 			IVec.new(pos.x + sign(delta_x), pos.y),
 			IVec.new(pos.x + sign(delta_x), pos.y + sign(delta_y)),
-			IVec.new(pos.x, pos.y + sign(delta_y))
+			IVec.new(pos.x, pos.y + sign(delta_y)),
+			IVec.new(pos.x - sign(delta_x), pos.y + delta_y_sign),
+			IVec.new(pos.x + sign(delta_x), pos.y - delta_y_sign),
 		]
 	for move in next_move:
 		if game_state.prepare_monster_move(idx, move):
