@@ -7,6 +7,7 @@ const MonsterSpawn := preload("res://scripts/MonsterSpawn.gd")
 const GameState := preload("res://scripts/GameState.gd")
 const IVec := preload("res://scripts/IVec.gd").IVec
 const MonsterEntity := preload("res://entities/Monster.tscn")
+const LaserMonsterEntity := preload("res://entities/LaserMonster.tscn")
 const MonsterAttackTile := preload("res://entities/Tiles/MonsterAttackTile.tscn")
 const MonsterMoveTile := preload("res://entities/Tiles/MonsterMoveTile.tscn")
 const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
@@ -114,8 +115,13 @@ func _phase_change(phase_idx: int) -> void:
 		var spawns = monster_spawn.get_spawn(game_state)
 		for spawn in spawns:
 			var monster_idx = game_state.prepare_monster_spawn(spawn["pos"])
-			var monster = MonsterEntity.instance()
-			monster.setup(game_state, monster_idx)
-			main.add_child(monster)
+			var monster = null;
+			if spawn["type"] == MonsterSpawn.MONSTER_TYPE_BASIC:
+				monster = MonsterEntity.instance()
+			elif spawn["type"] == MonsterSpawn.MONSTER_TYPE_LASER:
+				monster = LaserMonsterEntity.instance()
+			if monster != null:
+				monster.setup(game_state, monster_idx)
+				main.add_child(monster)
 	if phase_idx == GameState.PHASE_PLAYER_PREPARE:
 		_add_player_move_tiles()

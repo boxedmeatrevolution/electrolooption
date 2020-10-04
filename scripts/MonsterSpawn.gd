@@ -1,6 +1,7 @@
 const GameState := preload("res://scripts/GameState.gd")
 
 const MONSTER_TYPE_BASIC = 1
+const MONSTER_TYPE_LASER = 2
 
 var rng := RandomNumberGenerator.new()
 var _level := 1
@@ -19,12 +20,14 @@ func get_spawn(gs: GameState) -> Array:
 	var spawns = []
 	var no_monsters = gs.get_monster_ids().size() == 0
 	var turns_since_last_spawn = gs.turn - _turn_of_last_spawn
-	if no_monsters or turns_since_last_spawn >= 5:
+	if no_monsters or turns_since_last_spawn >= 3:
 		var posns = gs.get_cached_legal_monster_spawns()
 		if posns.size() > 0:
 			var i = rng.randi_range(0, posns.size() - 1)
+			var type = rng.randi_range(1,2)
 			spawns.append({
 				"pos": posns[i],
-				"type": MONSTER_TYPE_BASIC
+				"type": type
 			})
+			_turn_of_last_spawn = gs.turn
 	return spawns
