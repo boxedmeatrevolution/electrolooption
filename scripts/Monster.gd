@@ -53,13 +53,10 @@ func _prepare(idx: int) -> void:
 	# Monster AI goes here.
 	if idx != self.idx:
 		return
-	print("PRepare!!!!")
 	var player_pos := game_state.get_player_pos()
 	var pos := game_state.get_monster_pos(idx)
 	var delta_x := player_pos.x - pos.x
 	var delta_y := player_pos.y - pos.y
-	print("at: ", pos.x, ", ", pos.y)
-	print("target: ", player_pos.x, ", ", player_pos.y)
 	if abs(delta_x) <= 1 && abs(delta_y) <= 1:
 		var tiles := [
 			IVec.new(pos.x - 1, pos.y - 1),
@@ -93,7 +90,5 @@ func _prepare(idx: int) -> void:
 			IVec.new(pos.x, pos.y + sign(delta_y))
 		]
 	for move in next_move:
-		print("next move: ", move.x, ", ", move.y)
 		if game_state.prepare_monster_move(idx, move):
-			print("MOve you")
 			return

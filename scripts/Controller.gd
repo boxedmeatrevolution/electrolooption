@@ -11,6 +11,7 @@ const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
 
 onready var main := get_tree().get_root().find_node("Main", true, false)
 onready var background := get_tree().get_root().find_node("Background", true, false)
+onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMoveTiles", true, false)
 var player : Player
 var game_state : GameState
 var phase_timer := 0.0
@@ -75,6 +76,10 @@ func _phase_change(phase_idx: int) -> void:
 		for tile in monster_move_tiles:
 			tile.queue_free()
 		monster_move_tiles.clear()
+	if phase_idx == GameState.PHASE_PLAYER_ACTION:
+		for tile in player_move_tiles:
+			tile.queue_free()
+		player_move_tiles.clear()
 	if phase_idx == ((GameState.PHASE_MONSTER_PREPARE + 1) % GameState.NUM_PHASES):
 		# Create new tiles for the new monster moves and attacks.
 		for monster_idx in game_state.get_monster_ids():
@@ -91,3 +96,10 @@ func _phase_change(phase_idx: int) -> void:
 					attack_tile.board_pos = attack_pos
 					background.add_child(attack_tile)
 					monster_attack_tiles.append(attack_tile)
+	if phase_idx == GameState.PHASE_PLAYER_PREPARE:
+		var allowed_moves := game_state.get_cached_legal_player_moves()
+		for move in allowed_moves:
+			var move_tile := PlayerMoveTile.instance()
+			move_tile.board_pos = move
+			player_move_tile_parent.add_child(move_tile)
+			player_move_tiles.append(move_tile)

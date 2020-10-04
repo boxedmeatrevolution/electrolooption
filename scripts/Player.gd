@@ -4,6 +4,7 @@ const GameState := preload("res://scripts/GameState.gd")
 const PlayerRewind := preload("res://entities/PlayerRewind.tscn")
 
 onready var area := $Area2D
+onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMoveTiles", true, false)
 
 var game_state : GameState
 
@@ -12,6 +13,9 @@ const MODE_PREPARE_MOVE_DRAG := 1
 const MODE_PREPARE_MOVE_RETURN := 2
 const MODE_REWIND := 3
 var mode := 0
+
+func _ready() -> void:
+	player_move_tile_parent.visible = false
 
 func _process(delta: float) -> void:
 	if mode == MODE_DEFAULT:
@@ -40,6 +44,7 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 			if mode == MODE_DEFAULT:
 				if game_state.phase == GameState.PHASE_PLAYER_PREPARE:
 					mode = MODE_PREPARE_MOVE_DRAG
+					player_move_tile_parent.visible = true
 		else:
 			if mode == MODE_PREPARE_MOVE_DRAG:
 				# Check if movement is valid.
@@ -54,3 +59,4 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 				else:
 					pass
 				mode = MODE_PREPARE_MOVE_RETURN
+				player_move_tile_parent.visible = false
