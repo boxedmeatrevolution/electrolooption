@@ -13,7 +13,8 @@ var HEIGHT := 8
 
 const CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
-const PLAYER_MAX_MOVE := 100
+const PLAYER_MAX_MOVE := 2
+const MANUAL_REWIND_PLACE := true
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -25,6 +26,7 @@ signal on_phase_change(phase)
 signal on_player_spawn()  ## TODO
 signal on_player_move()
 signal on_player_rewind(idx)
+signal on_player_place_rewind()
 signal on_player_loop(idx)
 signal on_player_death()  ## TODO
 signal on_monster_spawn(idx)  ## TODO
@@ -40,9 +42,10 @@ var _monster_pos := {}
 var _prepared_monster_moves := {}
 var _prepared_monster_attack := {}
 var _prepared_monster_spawn := {}
-var _prepared_player_move = null
-var _prepared_player_rewind = null
-var _player_pos = null
+var _prepared_player_move : IVec = null
+var _prepared_player_place_rewind := false
+var _prepared_player_rewind : int = -1
+var _player_pos : IVec = null
 var _player_rewind_pos := []
 var _legal_player_moves := []
 var _legal_monster_spawns := []
@@ -160,20 +163,39 @@ func phase_complete() -> int:
 		_legal_player_moves = _get_legal_player_moves()
 	elif phase == PHASE_PLAYER_ACTION:
 		## Player either moves or rewinds
-		if _prepared_player_move != null:
-			_player_rewind_pos.append(_player_pos.copy())
-			_player_pos = _prepared_player_move
-			## Check if a loop was completed
-			for i in range(_player_rewind_pos.size()):
-				if _player_rewind_pos[i].eq(_player_pos):
-					## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
-					_do_loop(i)
-					emit_signal("on_player_loop", i)
-					_calc_rope_pos()
-					break
-			_calc_rope_pos()
-			emit_signal("on_player_move")
-		elif _prepared_player_rewind != null:
+		if MANUAL_REWIND_PLACE:
+			if _prepared_player_place_rewind:
+				## Check if a loop was completed
+				var has_loop := false
+				for i in range(_player_rewind_pos.size()):
+					if _player_rewind_pos[i].eq(_player_pos):
+						## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
+						_do_loop(i)
+						has_loop = true
+						emit_signal("on_player_loop", i)
+						break
+				if !has_loop:
+					_player_rewind_pos.append(_player_pos.copy())
+					emit_signal("on_player_place_rewind")
+				_calc_rope_pos()
+			if _prepared_player_move != null:
+				_player_pos = _prepared_player_move
+				emit_signal("on_player_move")
+		if !MANUAL_REWIND_PLACE:
+			if _prepared_player_move != null:
+				_player_rewind_pos.append(_player_pos.copy())
+				emit_signal("on_player_place_rewind")
+				_player_pos = _prepared_player_move
+				## Check if a loop was completed
+				for i in range(_player_rewind_pos.size()):
+					if _player_rewind_pos[i].eq(_player_pos):
+						## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
+						_do_loop(i)
+						emit_signal("on_player_loop", i)
+						break
+				_calc_rope_pos()
+				emit_signal("on_player_move")
+		if _prepared_player_rewind != -1:
 			_player_pos = _player_rewind_pos[_prepared_player_rewind]
 			if _prepared_player_rewind == 0:
 				_player_rewind_pos = []
@@ -183,7 +205,8 @@ func phase_complete() -> int:
 			emit_signal("on_player_rewind", _prepared_player_rewind)
 		## Reset "prepared" actions
 		_prepared_player_move = null
-		_prepared_player_rewind = null
+		_prepared_player_place_rewind = false
+		_prepared_player_rewind = -1
 	elif phase == PHASE_MONSTER_ATTACK:
 		for idx in _prepared_monster_attack.keys():
 			emit_signal("on_monster_attack", idx)
@@ -365,6 +388,18 @@ func test_player_rewind(idx: int) -> bool:
 	if is_threatened(pos):
 		return false
 	return true
+
+func test_player_place_rewind() -> bool:
+	# Check that not threatened.
+	var pos := _player_pos
+	if is_threatened(pos):
+		return false
+	if _player_rewind_pos.empty():
+		return true
+	# Check that rewind is being placed in the same row or column or diagonal as
+	# previous rewind.
+	var rewind_pos : IVec = _player_rewind_pos[-1]
+	return Utility.is_rooks_move(pos, rewind_pos, false)
 	
 func prepare_player_move(pos: IVec) -> bool:
 	if !test_player_move(pos):
@@ -376,6 +411,12 @@ func prepare_player_rewind(idx: int) -> bool:
 	if !test_player_rewind(idx):
 		return false
 	_prepared_player_rewind = idx
+	return true
+
+func prepare_player_place_rewind() -> bool:
+	if !test_player_place_rewind():
+		return false
+	_prepared_player_place_rewind = true
 	return true
 	
 func get_player_pos() -> IVec:

@@ -1,7 +1,6 @@
 extends Node2D
 
 const GameState := preload("res://scripts/GameState.gd")
-const PlayerRewind := preload("res://entities/PlayerRewind.tscn")
 
 onready var area := $Area2D
 onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMoveTiles", true, false)
@@ -40,23 +39,21 @@ func _rewind(idx: int) -> void:
 
 func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 	if event is InputEventMouseButton:
-		if event.pressed:
+		if event.doubleclick:
+			if mode == MODE_DEFAULT:
+				if game_state.phase == GameState.PHASE_PLAYER_PREPARE && GameState.MANUAL_REWIND_PLACE:
+					if game_state.prepare_player_place_rewind():
+						game_state.phase_complete()
+		elif event.pressed:
 			if mode == MODE_DEFAULT:
 				if game_state.phase == GameState.PHASE_PLAYER_PREPARE:
 					mode = MODE_PREPARE_MOVE_DRAG
 					player_move_tile_parent.visible = true
-		else:
+		elif !event.pressed:
 			if mode == MODE_PREPARE_MOVE_DRAG:
 				# Check if movement is valid.
 				var board_position = Utility.world_to_board(self.position)
-				var loop := game_state.is_occupied_by_past_player(board_position)
 				if game_state.prepare_player_move(board_position):
 					game_state.phase_complete()
-					if not loop:
-						var player_rewind := PlayerRewind.instance()
-						player_rewind.setup(game_state)
-						get_parent().add_child_below_node(self, player_rewind)
-				else:
-					pass
 				mode = MODE_PREPARE_MOVE_RETURN
 				player_move_tile_parent.visible = false

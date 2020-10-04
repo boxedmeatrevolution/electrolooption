@@ -18,8 +18,15 @@ func setup(game_state: GameState):
 
 func _process(delta : float) -> void:
 	var past := game_state.get_past_player_pos()
+	var player_pos := game_state.get_player_pos()
 	if past.size() - 1 == idx:
-		lightning.target = Utility.board_to_world(game_state.get_player_pos())
+		if GameState.MANUAL_REWIND_PLACE:
+			if Utility.is_rooks_move(past[idx], player_pos, false):
+				lightning.target = Utility.board_to_world(player_pos)
+			else:
+				lightning.target = self.global_position
+		else:
+			lightning.target = Utility.board_to_world(player_pos)
 	else:
 		lightning.target = Utility.board_to_world(past[idx + 1])
 

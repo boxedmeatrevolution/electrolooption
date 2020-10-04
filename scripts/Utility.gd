@@ -16,6 +16,20 @@ func _ready() -> void:
 func gaussian(mean: float = 0.0, std: float = 1.0) -> float:
 	return std * sqrt(-2.0 * log(randf())) * cos(2.0 * PI * randf()) + mean
 
+func is_queens_move(a : IVec, b : IVec, include_center : bool = true) -> bool:
+	var delta_x := a.x - b.x
+	var delta_y := a.y - b.y
+	if delta_x == 0 and delta_y == 0:
+		return include_center
+	return delta_x == 0 or delta_y == 0 or abs(delta_x) == abs(delta_y)
+
+func is_rooks_move(a : IVec, b : IVec, include_center : bool = true) -> bool:
+	var delta_x := a.x - b.x
+	var delta_y := a.y - b.y
+	if delta_x == 0 and delta_y == 0:
+		return include_center
+	return delta_x == 0 or delta_y == 0
+
 func _update_transform() -> void:
 	transform = Transform2D(
 		Vector2(0.5 * TILE_WIDTH, 0.5 * TILE_HEIGHT),

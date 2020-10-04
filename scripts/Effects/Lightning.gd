@@ -15,7 +15,7 @@ func _ready() -> void:
 	var distance := (self.global_position - target).length()
 	var num_segments := max(int(distance / LENGTH_PER_SEGMENT), 2)
 	for i in range(0, num_segments):
-		points.append(rng.randfn(0.0, distance / (num_segments - 1) / JITTER_SPACE))
+		points.append(0.0)
 		line.add_point(Vector2.ZERO)
 
 
@@ -31,11 +31,12 @@ func _process(delta: float) -> void:
 	points[-1] = 0.0
 	for i in range(1, points.size() - 1):
 		var shift := abs(Utility.gaussian(0.0, JITTER_TIME * delta))
-		var diff : float = (points[i - 1] - 2.0 * points[i] + points[i + 1]) / pow((distance / (points.size() - 1)), 2)
-		if randf() < 0.5 - diff * JITTER_SPACE * JITTER_SPACE:
-			points[i] -= shift
-		else:
-			points[i] += shift
+		if distance != 0.0:
+			var diff : float = (points[i - 1] - 2.0 * points[i] + points[i + 1]) / pow((distance / (points.size() - 1)), 2)
+			if randf() < 0.5 - diff * JITTER_SPACE * JITTER_SPACE:
+				points[i] -= shift
+			else:
+				points[i] += shift
 	# Evenly space points along line.
 	for i in range(0, points.size()):
 		var tangent := end * i / (points.size() - 1)

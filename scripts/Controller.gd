@@ -1,6 +1,7 @@
 extends Node2D
 
 const Player := preload("res://scripts/Player.gd")
+const PlayerRewind := preload("res://entities/PlayerRewind.tscn")
 const Block := preload("res://scripts/Block.gd")
 const Monster := preload("res://scripts/Monster.gd")
 const MonsterSpawn := preload("res://scripts/MonsterSpawn.gd")
@@ -53,6 +54,7 @@ func _ready() -> void:
 		monster_nodes[monster_idx].setup(game_state, monster_idx)
 	player.game_state = game_state
 	game_state.connect("on_phase_change", self, "_phase_change")
+	game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	_add_player_move_tiles()
 
 func _process(delta: float) -> void:
@@ -85,6 +87,11 @@ func _add_player_move_tiles() -> void:
 		move_tile.board_pos = move
 		player_move_tile_parent.add_child(move_tile)
 		player_move_tiles.append(move_tile)
+
+func _place_rewind() -> void:
+	var player_rewind := PlayerRewind.instance()
+	player_rewind.setup(game_state)
+	main.add_child(player_rewind)
 
 func _phase_change(phase_idx: int) -> void:
 	# Clear old tiles
