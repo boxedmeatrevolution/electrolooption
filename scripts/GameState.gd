@@ -392,7 +392,7 @@ func test_player_rewind(idx: int) -> bool:
 func test_player_place_rewind() -> bool:
 	# Check that not threatened.
 	var pos := _player_pos
-	if is_threatened(pos):
+	if is_threatened(pos) or will_be_occupied_by_monster(pos):
 		return false
 	if _player_rewind_pos.empty():
 		return true
