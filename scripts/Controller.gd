@@ -111,9 +111,10 @@ func _phase_change(phase_idx: int) -> void:
 			if attack != null:
 				for attack_pos in attack:
 					var attack_tile := MonsterAttackTile.instance()
-					attack_tile.board_pos = attack_pos
-					background.add_child(attack_tile)
-					monster_attack_tiles.append(attack_tile)
+					if attack_pos.x >= 0 && attack_pos.x < Utility.NUM_TILES_ACROSS && attack_pos.y >= 0 && attack_pos.y < Utility.NUM_TILES_ACROSS:
+						attack_tile.board_pos = attack_pos
+						background.add_child(attack_tile)
+						monster_attack_tiles.append(attack_tile)
 	if phase_idx == GameState.PHASE_MONSTER_SPAWN:
 		var spawns = monster_spawn.get_spawn(game_state)
 		for spawn in spawns:
