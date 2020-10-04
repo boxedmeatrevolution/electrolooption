@@ -41,7 +41,7 @@ func _ready() -> void:
 			child.position = Utility.board_to_world(board_position)
 			monsters.append(board_position)
 			monster_nodes.append(child)
-	var dimensions = IVec.new(5,6)
+	var dimensions = IVec.new(Utility.NUM_TILES_ACROSS, Utility.NUM_TILES_ACROSS)
 	game_state = GameState.new(
 		Utility.world_to_board(player.position),
 		monsters,
