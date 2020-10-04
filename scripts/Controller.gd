@@ -12,6 +12,8 @@ const LaserMonsterEntity := preload("res://entities/LaserMonster.tscn")
 const MonsterAttackTile := preload("res://entities/Tiles/MonsterAttackTile.tscn")
 const MonsterMoveTile := preload("res://entities/Tiles/MonsterMoveTile.tscn")
 const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
+const PlayerRewindButton := preload("res://entities/UI/PlayerRewindButton.tscn")
+const PlayerPlaceRewindButton := preload("res://entities/UI/PlayerPlaceRewindButton.tscn")
 
 onready var main := get_tree().get_root().find_node("Main", true, false)
 onready var background := get_tree().get_root().find_node("Background", true, false)
@@ -25,7 +27,11 @@ var monster_attack_tiles := []
 var monster_move_tiles := []
 var player_move_tiles := []
 
+var player_rewind_button := PlayerRewindButton.instance()
+var player_place_rewind_button := PlayerPlaceRewindButton.instance()
+
 func _ready() -> void:
+	Utility.mode = Utility.MODE_PLAYER_DEFAULT
 	var player : Player
 	var blocks := []
 	var monsters := []
@@ -56,6 +62,10 @@ func _ready() -> void:
 	game_state.connect("on_phase_change", self, "_phase_change")
 	game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	_add_player_move_tiles()
+	player_rewind_button.position = Vector2(140, 1080 - 140)
+	player_place_rewind_button.position = Vector2(360, 1080 - 140)
+	background.add_child(player_rewind_button)
+	background.add_child(player_place_rewind_button)
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
@@ -137,4 +147,16 @@ func _phase_change(phase_idx: int) -> void:
 				monster.setup(game_state, monster_idx)
 				main.add_child(monster)
 	if phase_idx == GameState.PHASE_PLAYER_PREPARE:
+		Utility.mode = Utility.MODE_PLAYER_DEFAULT
 		_add_player_move_tiles()
+		var can_rewind := false
+		for rewind_idx in range(0, game_state.get_past_player_pos().size()):
+			if game_state.test_player_rewind(rewind_idx):
+				can_rewind = true
+				break
+		var can_place_rewind := game_state.test_player_place_rewind()
+		player_rewind_button.enabled = can_rewind
+		player_place_rewind_button.enabled = can_place_rewind
+	if phase_idx == (GameState.PHASE_PLAYER_PREPARE + 1) % GameState.NUM_PHASES:
+		player_rewind_button.enabled = false
+		player_place_rewind_button.enabled = false

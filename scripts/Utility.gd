@@ -10,6 +10,14 @@ const BOARD_CENTER := Vector2(0.5 * 1920, 0.5 * 1080)
 var transform : Transform2D
 var transform_inv : Transform2D
 
+const MODE_PLAYER_DEFAULT := 0
+const MODE_PLAYER_DRAG := 1
+const MODE_PLAYER_REWIND := 2
+const MODE_PLAYER_PLACE_REWIND := 3
+const MODE_ENEMY_TURN := 4
+
+var mode := MODE_PLAYER_DEFAULT
+
 func _ready() -> void:
 	_update_transform()
 

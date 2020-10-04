@@ -34,6 +34,8 @@ signal on_monster_prepare(idx)
 signal on_monster_move(idx)
 signal on_monster_attack(idx)
 signal on_monster_death(idx)
+signal on_game_lose()
+signal on_game_win()
 
 var _next_id := -1
 var _block_pos := []
@@ -161,6 +163,15 @@ func phase_complete() -> int:
 		## Start of a new turn!
 		turn += 1
 		_legal_player_moves = _get_legal_player_moves()
+		var can_move := _legal_player_moves.empty()
+		var can_place_rewind := test_player_place_rewind()
+		var can_rewind := false
+		for i in range(0, _player_rewind_pos.size()):
+			if test_player_rewind(i):
+				can_rewind = true
+				break
+		if !can_move and !can_place_rewind and !can_rewind:
+			emit_signal("on_game_lose")
 	elif phase == PHASE_PLAYER_ACTION:
 		## Player either moves or rewinds
 		if MANUAL_REWIND_PLACE:
@@ -386,6 +397,8 @@ func test_player_rewind(idx: int) -> bool:
 	## rewind is not allowed if it causes the player to be threatened
 	var pos = _player_rewind_pos[idx]
 	if is_threatened(pos):
+		return false
+	if pos.eq(_player_pos):
 		return false
 	return true
 
