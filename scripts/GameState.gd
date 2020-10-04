@@ -69,10 +69,13 @@ func _do_loop(idx):
 			rope_map[x].append(false)
 	
 	## Populate the rope map
-	var pt = _player_rewind_pos[idx]
 	for i in range(idx, _player_rewind_pos.size()):
+		var pt = _player_rewind_pos[i]
+		var next_pt = _player_rewind_pos[idx]
+		if i < _player_rewind_pos.size()-1:
+			next_pt = _player_rewind_pos[i+1]
 		rope_map[pt.x][pt.y] = true
-		var next_pt = _player_rewind_pos[i]
+		
 		var dist = next_pt.minus(pt)
 		var unit_dist = IVec.new(0,0)
 		if dist.x != 0 and dist.y == 0:
@@ -89,8 +92,6 @@ func _do_loop(idx):
 			assert(!(pt.x < 0 or pt.y < 0 or pt.x >= WIDTH or pt.y >= HEIGHT))
 			pt = pt.add(unit_dist)
 			rope_map[pt.x][pt.y] = true
-			
-		pt = _player_rewind_pos[i]
 		
 	## Do a flood fill to determine what is "outside" the loop
 	var fill_map = []
@@ -107,6 +108,9 @@ func _do_loop(idx):
 	_do_fill(0, 0, fill_map, padded_rope_map)
 	
 	## Destroy ensnared monsters
+	for line in padded_rope_map:
+		print(line)
+		
 	var to_kill = []
 	for i in _monsters.keys():
 		var mpos = _monster_pos[i]
@@ -161,7 +165,7 @@ func phase_complete() -> int:
 				_player_rewind_pos = []
 			else:
 				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_move - 1)
-			emit_signal("on_player_rewind")
+			emit_signal("on_player_rewind", _prepared_player_rewind)
 		## Reset "prepared" actions
 		_prepared_player_move = null
 		_prepared_player_rewind = null
@@ -249,7 +253,7 @@ func test_player_move(pos: IVec) -> bool:
 	var is_diagonal = abs(pos.x - _player_pos.x) == abs(pos.y - _player_pos.y)
 	if (is_moving and is_on_board and (is_cardinal or is_diagonal)):
 		## check if the square is threatened
-		if is_threatened(pos):
+		if is_threatened(pos) and !will_be_occupied_by_monster(pos):
 			return false
 		## check if moving to new position requires traversing through a wall (this is not allowed)
 		for bpos in _block_pos:
@@ -302,7 +306,6 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 		_prepared_monster_moves[idx] = pos.copy()
 		return true
 	return false
-	
 	
 func get_monster_move(idx: int) -> IVec:
 	assert(idx in _monsters)
