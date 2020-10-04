@@ -11,6 +11,8 @@ const NUM_PHASES := 6
 const WIDTH := 8
 const HEIGHT := 8
 
+const CAN_GO_THROUGH_ROPES := false
+
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
 
@@ -312,8 +314,11 @@ func _get_legal_player_moves() -> Array:
 		while true:
 			pos = pos.add(dir)
 			var is_off_board = pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT
-			if is_off_board or is_occupied_by_block(pos) or is_occupied_by_monster(pos):
-				break
+			if is_off_board \
+				or is_occupied_by_block(pos) \
+				or is_occupied_by_monster(pos) \
+				or (!CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos) and !is_occupied_by_past_player(pos)):
+					break
 			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
 				continue
 			ret.append(pos)
