@@ -175,6 +175,7 @@ func phase_complete() -> int:
 		for idx in _prepared_monster_moves.keys():
 			if idx in _monster_pos:
 				_monster_pos[idx] = _prepared_monster_moves[idx]
+				emit_signal("on_monster_move", idx)
 		## Reset prepared moves
 		_prepared_monster_moves = {}
 	elif phase == PHASE_MONSTER_PREPARE:
