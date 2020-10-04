@@ -46,6 +46,7 @@ func _ready() -> void:
 		monster_nodes[monster_idx].setup(game_state, monster_idx)
 	player.game_state = game_state
 	game_state.connect("on_phase_change", self, "_phase_change")
+	_add_player_move_tiles()
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
@@ -70,7 +71,16 @@ func _process(delta: float) -> void:
 				game_state.phase_complete()
 			phase_timer = 0.5
 
+func _add_player_move_tiles() -> void:
+	var allowed_moves := game_state.get_cached_legal_player_moves()
+	for move in allowed_moves:
+		var move_tile := PlayerMoveTile.instance()
+		move_tile.board_pos = move
+		player_move_tile_parent.add_child(move_tile)
+		player_move_tiles.append(move_tile)
+
 func _phase_change(phase_idx: int) -> void:
+	print("What")
 	# Clear old tiles
 	if phase_idx == ((GameState.PHASE_MONSTER_ATTACK + 1) % GameState.NUM_PHASES):
 		for tile in monster_attack_tiles:
@@ -108,9 +118,4 @@ func _phase_change(phase_idx: int) -> void:
 			monster.setup(game_state, monster_idx)
 			main.add_child(monster)
 	if phase_idx == GameState.PHASE_PLAYER_PREPARE:
-		var allowed_moves := game_state.get_cached_legal_player_moves()
-		for move in allowed_moves:
-			var move_tile := PlayerMoveTile.instance()
-			move_tile.board_pos = move
-			player_move_tile_parent.add_child(move_tile)
-			player_move_tiles.append(move_tile)
+		_add_player_move_tiles()
