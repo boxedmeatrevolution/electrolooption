@@ -51,6 +51,7 @@ func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
 	for pos in block_pos:
 		_block_pos.append(pos)
 	_legal_player_moves = _get_legal_player_moves()
+	#emit_signal("on_phase_change", PHASE_PLAYER_PREPARE)
 
 func _get_new_id() -> int:
 	_next_id += 1
@@ -208,7 +209,7 @@ func is_occupied_by_block(pos: IVec) -> bool:
 		if pos.eq(bpos):
 			return true
 	return false
-	
+
 func will_be_occupied_by_monster(pos: IVec) -> bool:
 	for idx in _monsters.keys():
 		var mpos = _monster_pos[idx]
