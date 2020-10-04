@@ -37,10 +37,12 @@ func _ready() -> void:
 		elif child is Monster:
 			monsters.append(Utility.world_to_board(child.position))
 			monster_nodes.append(child)
+	var dimensions = IVec.new(5,6)
 	game_state = GameState.new(
 		Utility.world_to_board(player.position),
 		monsters,
-		blocks
+		blocks,
+		dimensions
 	)
 	monster_spawn = MonsterSpawn.new(1)
 	for monster_idx in range(0, monster_nodes.size()):

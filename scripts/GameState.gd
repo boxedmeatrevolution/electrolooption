@@ -8,10 +8,11 @@ const PHASE_MONSTER_PREPARE := 4
 const PHASE_MONSTER_SPAWN := 5
 
 const NUM_PHASES := 6
-const WIDTH := 8
-const HEIGHT := 8
+var WIDTH := 8
+var HEIGHT := 8
 
 const CAN_GO_THROUGH_ROPES := false
+const ROPES_KILL_ENEMIES := true
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -46,7 +47,9 @@ var _legal_player_moves := []
 var _legal_monster_spawns := []
 var _rope_pos := []
 
-func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
+func _init(player_pos: IVec, monster_pos: Array, block_pos: Array, dimensions: IVec):
+	WIDTH = dimensions.x
+	HEIGHT = dimensions.y
 	_player_pos = player_pos
 	for pos in monster_pos:
 		var idx = _get_new_id()
@@ -121,9 +124,10 @@ func _do_loop(idx):
 	var to_kill = []
 	for i in _monsters.keys():
 		var mpos = _monster_pos[i]
-		if fill_map[mpos.x+1][mpos.y+1] == false and rope_map[mpos.x][mpos.y] == false:
-			## Monster is ensnared
-			to_kill.append(i)
+		if fill_map[mpos.x+1][mpos.y+1] == false and \
+			(rope_map[mpos.x][mpos.y] == false or ROPES_KILL_ENEMIES):
+				## Monster is ensnared
+				to_kill.append(i)
 	for i in to_kill:
 		_monsters.erase(i)
 		_monster_pos.erase(i)
