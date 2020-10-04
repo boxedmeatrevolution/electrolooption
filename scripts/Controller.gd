@@ -33,9 +33,13 @@ func _ready() -> void:
 		if child is Player:
 			player = child
 		elif child is Block:
-			blocks.append(Utility.world_to_board(child.position))
+			var board_position := Utility.world_to_board(child.position)
+			child.position = Utility.board_to_world(board_position)
+			blocks.append(board_position)
 		elif child is Monster:
-			monsters.append(Utility.world_to_board(child.position))
+			var board_position := Utility.world_to_board(child.position)
+			child.position = Utility.board_to_world(board_position)
+			monsters.append(board_position)
 			monster_nodes.append(child)
 	game_state = GameState.new(
 		Utility.world_to_board(player.position),
