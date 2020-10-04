@@ -3,8 +3,10 @@ extends Node2D
 const Player := preload("res://scripts/Player.gd")
 const Block := preload("res://scripts/Block.gd")
 const Monster := preload("res://scripts/Monster.gd")
+const MonsterSpawn := preload("res://scripts/MonsterSpawn.gd")
 const GameState := preload("res://scripts/GameState.gd")
 const IVec := preload("res://scripts/IVec.gd").IVec
+const MonsterEntity := preload("res://entities/Monster.tscn")
 const MonsterAttackTile := preload("res://entities/Tiles/MonsterAttackTile.tscn")
 const MonsterMoveTile := preload("res://entities/Tiles/MonsterMoveTile.tscn")
 const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
@@ -15,6 +17,7 @@ onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMo
 var player : Player
 var game_state : GameState
 var phase_timer := 0.0
+var monster_spawn : MonsterSpawn
 
 var monster_attack_tiles := []
 var monster_move_tiles := []
@@ -38,6 +41,7 @@ func _ready() -> void:
 		monsters,
 		blocks
 	)
+	monster_spawn = MonsterSpawn.new(1)
 	for monster_idx in range(0, monster_nodes.size()):
 		monster_nodes[monster_idx].setup(game_state, monster_idx)
 	player.game_state = game_state
@@ -96,6 +100,13 @@ func _phase_change(phase_idx: int) -> void:
 					attack_tile.board_pos = attack_pos
 					background.add_child(attack_tile)
 					monster_attack_tiles.append(attack_tile)
+	if phase_idx == GameState.PHASE_MONSTER_SPAWN:
+		var spawns = monster_spawn.get_spawn(game_state)
+		for spawn in spawns:
+			var monster_idx = game_state.prepare_monster_spawn(spawn["pos"])
+			var monster = MonsterEntity.instance()
+			monster.setup(game_state, monster_idx)
+			main.add_child(monster)
 	if phase_idx == GameState.PHASE_PLAYER_PREPARE:
 		var allowed_moves := game_state.get_cached_legal_player_moves()
 		for move in allowed_moves:
