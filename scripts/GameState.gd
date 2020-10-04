@@ -41,6 +41,8 @@ var _prepared_player_rewind = null
 var _player_pos = null
 var _player_rewind_pos := []
 var _legal_player_moves := []
+var _legal_monster_spawns := []
+var _rope_pos := []
 
 func _init(player_pos: IVec, monster_pos: Array, block_pos: Array):
 	_player_pos = player_pos
@@ -161,7 +163,9 @@ func phase_complete() -> int:
 					## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
 					_do_loop(i)
 					emit_signal("on_player_loop", i)
+					_calc_rope_pos()
 					break
+			_calc_rope_pos()
 			emit_signal("on_player_move")
 		elif _prepared_player_rewind != null:
 			_player_pos = _player_rewind_pos[_prepared_player_rewind]
@@ -169,6 +173,7 @@ func phase_complete() -> int:
 				_player_rewind_pos = []
 			else:
 				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_rewind - 1)
+			_calc_rope_pos()
 			emit_signal("on_player_rewind", _prepared_player_rewind)
 		## Reset "prepared" actions
 		_prepared_player_move = null
@@ -190,6 +195,7 @@ func phase_complete() -> int:
 		for idx in _monsters.keys():
 			emit_signal("on_monster_prepare", idx)
 	elif phase == PHASE_MONSTER_SPAWN:
+		_legal_monster_spawns = _get_legal_monster_spawns()
 		for idx in _prepared_monster_spawn.keys():
 			emit_signal("on_monster_spawn", idx)
 		## Reset spawns
@@ -232,6 +238,12 @@ func is_occupied_by_past_player(pos: IVec) -> bool:
 			return true
 	return false 
 
+func is_occupied_by_rope(pos: IVec) -> bool:
+	for rpos in _rope_pos:
+		if pos.eq(rpos):
+			return true
+	return false
+
 func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
 	## Checks if a - b - c lie on a line 
 	## Any orientation, but b in the middle. 
@@ -253,6 +265,42 @@ func _make_a_line(a: IVec, b: IVec, c: IVec) -> bool:
 	else:
 		return true
 	return false
+
+func _get_line(a: IVec, b: IVec) -> Array:
+	var line = [a]
+	var dist = b.minus(a)
+	var unit_dist = IVec.new(0,0)
+	if dist.x != 0 and dist.y == 0:
+		unit_dist = IVec.new(round(float(abs(dist.x)) / float(dist.x)), 0)
+	elif dist.x == 0 and dist.y != 0:
+		unit_dist = IVec.new(0, round(float(abs(dist.y)) / float(dist.y)))
+	elif dist.x != 0 and dist.y != 0:
+		unit_dist = IVec.new(round(float(abs(dist.x)) / float(dist.x)), round(float(abs(dist.y)) / float(dist.y)))
+	
+	if unit_dist.x == 0 and unit_dist.y == 0:
+		return line
+		
+	while !a.eq(b):
+		assert(!(a.x < 0 or a.y < 0 or a.x >= WIDTH or a.y >= HEIGHT))
+		a = a.add(unit_dist)
+		line.append(a)
+	return line
+
+func _calc_rope_pos():
+	_rope_pos = []
+	if _player_rewind_pos.size() == 0:
+		return
+	var pt = _player_rewind_pos[0]
+	_rope_pos.append(_player_rewind_pos[0])
+	for i in range(_player_rewind_pos.size()):
+		pt = _player_rewind_pos[i]
+		var next_pt = _player_pos
+		if i < _player_rewind_pos.size() - 1:
+			next_pt = _player_rewind_pos[i + 1]
+		var line = _get_line(pt, next_pt)
+		if line.size() > 1:
+			for j in range(1, line.size()):
+				_rope_pos.append(line[j])
 
 #################
 ## PLAYER!!!!   #
@@ -327,6 +375,23 @@ func get_past_player_pos() -> Array:
 #################
 ## MONSTERS!!!! #
 #################
+func _get_legal_monster_spawns() -> Array:
+	var ret = []
+	for x in range(WIDTH):
+		for y in range(HEIGHT):
+			var pos = IVec.new(x,y)
+			if is_occupied_by_block(pos) \
+				or is_occupied_by_monster(pos) \
+				or is_occupied_by_past_player(pos) \
+				or will_be_occupied_by_monster(pos) \
+				or is_occupied_by_rope(pos):
+					continue
+			ret.append(pos)
+	return ret
+
+func get_cached_legal_monster_spawns() -> Array:
+	return _legal_monster_spawns
+
 func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	assert(idx in _monsters)
 	var mpos = _monster_pos[idx]
