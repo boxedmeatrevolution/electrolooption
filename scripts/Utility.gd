@@ -4,7 +4,7 @@ const IVec := preload("res://scripts/IVec.gd").IVec
 
 const TILE_WIDTH := 192
 const TILE_HEIGHT := 112 + 2
-const NUM_TILES_ACROSS := 8
+const NUM_TILES_ACROSS := 7
 const BOARD_CENTER := Vector2(0.5 * 1920, 0.5 * 1080)
 
 var transform : Transform2D

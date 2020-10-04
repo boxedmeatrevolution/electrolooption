@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/dance_floor.png-afe5650568fe52bbcc569a0db642ac94.stex"
+path="res://.import/dance_floor_6.png-2100bdd084f4de741fa4c4755e3ecc8b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tileset/dance_floor.png"
-dest_files=[ "res://.import/dance_floor.png-afe5650568fe52bbcc569a0db642ac94.stex" ]
+source_file="res://tileset/dance_floor_6.png"
+dest_files=[ "res://.import/dance_floor_6.png-2100bdd084f4de741fa4c4755e3ecc8b.stex" ]
 
 [params]
 

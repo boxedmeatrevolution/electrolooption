@@ -13,6 +13,7 @@ var HEIGHT := 8
 
 const CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
+const PLAYER_MAX_MOVE := 100
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -58,7 +59,6 @@ func _init(player_pos: IVec, monster_pos: Array, block_pos: Array, dimensions: I
 	for pos in block_pos:
 		_block_pos.append(pos)
 	_legal_player_moves = _get_legal_player_moves()
-	emit_signal("on_phase_change", PHASE_PLAYER_PREPARE)
 
 func _get_new_id() -> int:
 	_next_id += 1
@@ -315,14 +315,17 @@ func _get_legal_player_moves() -> Array:
 	var ret = []
 	for dir in DIRS:
 		var pos = _player_pos.copy()
-		while true:
+		for distance in range(0, PLAYER_MAX_MOVE):
 			pos = pos.add(dir)
 			var is_off_board = pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT
 			if is_off_board \
 				or is_occupied_by_block(pos) \
-				or is_occupied_by_monster(pos) \
-				or (!CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos) and !is_occupied_by_past_player(pos)):
+				or is_occupied_by_monster(pos):
 					break
+			if !CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos):
+				if is_occupied_by_past_player(pos):
+					ret.append(pos)
+				break
 			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
 				continue
 			ret.append(pos)
