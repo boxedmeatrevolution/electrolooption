@@ -270,6 +270,9 @@ func _get_legal_player_moves() -> Array:
 			ret.append(pos)
 	return ret
 	
+func get_cached_legal_player_moves() -> Array:
+	return _legal_player_moves	
+	
 func test_player_move(pos: IVec) -> bool:
 #	var is_moving = !pos.eq(_player_pos)
 #	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
