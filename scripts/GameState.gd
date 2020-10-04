@@ -107,10 +107,7 @@ func _do_loop(idx):
 				padded_rope_map[x].append(rope_map[x-1][y-1])
 	_do_fill(0, 0, fill_map, padded_rope_map)
 	
-	## Destroy ensnared monsters
-	for line in padded_rope_map:
-		print(line)
-		
+	## Destroy ensnared monsters	
 	var to_kill = []
 	for i in _monsters.keys():
 		var mpos = _monster_pos[i]
@@ -164,7 +161,7 @@ func phase_complete() -> int:
 			if _prepared_player_rewind == 0:
 				_player_rewind_pos = []
 			else:
-				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_move - 1)
+				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_rewind - 1)
 			emit_signal("on_player_rewind", _prepared_player_rewind)
 		## Reset "prepared" actions
 		_prepared_player_move = null
