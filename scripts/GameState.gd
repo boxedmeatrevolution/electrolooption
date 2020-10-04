@@ -302,11 +302,13 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 		_prepared_monster_moves[idx] = pos.copy()
 		return true
 	return false
-	
-	
+
+func get_monster_ids() -> Array:
+	return _monsters.keys()
+
 func get_monster_move(idx: int) -> IVec:
 	assert(idx in _monsters)
-	return _prepared_monster_moves[idx]
+	return _prepared_monster_moves.get(idx)
 	
 func prepare_monster_attack(idx: int, threatened_tiles: Array) -> bool:
 	assert(idx in _monsters)
@@ -315,11 +317,11 @@ func prepare_monster_attack(idx: int, threatened_tiles: Array) -> bool:
 	
 func get_monster_pos(idx: int) -> IVec:
 	assert(idx in _monsters)
-	return _monster_pos[idx]
+	return _monster_pos.get(idx)
 	
 func get_monster_attack(idx: int) -> Array:
 	assert(idx in _monsters)
-	return _prepared_monster_attack[idx]
+	return _prepared_monster_attack.get(idx)
 	
 func prepare_monster_spawn(pos: IVec) -> int:
 	var idx = _get_new_id()

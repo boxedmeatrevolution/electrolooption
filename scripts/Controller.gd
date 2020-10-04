@@ -5,14 +5,22 @@ const Block := preload("res://scripts/Block.gd")
 const Monster := preload("res://scripts/Monster.gd")
 const GameState := preload("res://scripts/GameState.gd")
 const IVec := preload("res://scripts/IVec.gd").IVec
+const MonsterAttackTile := preload("res://entities/Tiles/MonsterAttackTile.tscn")
+const MonsterMoveTile := preload("res://entities/Tiles/MonsterMoveTile.tscn")
+const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
 
+onready var main := get_tree().get_root().find_node("Main", true, false)
+onready var background := get_tree().get_root().find_node("Background", true, false)
 var player : Player
 var game_state : GameState
 var phase_timer := 0.0
 
+var monster_attack_tiles := []
+var monster_move_tiles := []
+var player_move_tiles := []
+
 func _ready() -> void:
 	var player : Player
-	var main := get_tree().get_root().find_node("Main", true, false)
 	var blocks := []
 	var monsters := []
 	var monster_nodes := []
@@ -32,6 +40,7 @@ func _ready() -> void:
 	for monster_idx in range(0, monster_nodes.size()):
 		monster_nodes[monster_idx].setup(game_state, monster_idx)
 	player.game_state = game_state
+	game_state.connect("on_phase_change", self, "_phase_change")
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
@@ -39,4 +48,30 @@ func _process(delta: float) -> void:
 		if phase_timer < 0:
 			game_state.phase_complete()
 			phase_timer = 0.5
-			print("Phaes is ", game_state.phase)
+
+func _phase_change(phase_idx: int) -> void:
+	# Clear old tiles
+	if phase_idx == ((GameState.PHASE_MONSTER_ATTACK + 1) % GameState.NUM_PHASES):
+		for tile in monster_attack_tiles:
+			tile.queue_free()
+		monster_attack_tiles.clear()
+	if phase_idx == ((GameState.PHASE_MONSTER_MOVE + 1) % GameState.NUM_PHASES):
+		for tile in monster_move_tiles:
+			tile.queue_free()
+		monster_move_tiles.clear()
+	if phase_idx == ((GameState.PHASE_MONSTER_PREPARE + 1) % GameState.NUM_PHASES):
+		# Create new tiles for the new monster moves and attacks.
+		for monster_idx in game_state.get_monster_ids():
+			var move := game_state.get_monster_move(monster_idx)
+			var attack := game_state.get_monster_attack(monster_idx)
+			if move != null:
+				var move_tile := MonsterMoveTile.instance()
+				move_tile.board_pos = move
+				background.add_child(move_tile)
+				monster_move_tiles.append(move_tile)
+			if attack != null:
+				for attack_pos in attack:
+					var attack_tile := MonsterAttackTile.instance()
+					attack_tile.board_pos = attack_pos
+					background.add_child(attack_tile)
+					monster_attack_tiles.append(attack_tile)

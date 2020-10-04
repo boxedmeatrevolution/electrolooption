@@ -10,7 +10,9 @@
 
 [node name="Controller" parent="." instance=ExtResource( 5 )]
 
-[node name="Background" type="Sprite" parent="."]
+[node name="Background" type="Node2D" parent="."]
+
+[node name="Background" type="Sprite" parent="Background"]
 position = Vector2( 960, 540 )
 texture = ExtResource( 1 )
 
