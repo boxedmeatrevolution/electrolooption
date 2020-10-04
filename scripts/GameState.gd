@@ -402,9 +402,13 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	var mpos = _monster_pos[idx]
 	var is_moving = !pos.eq(mpos)
 	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
-	if is_moving and is_on_board and !is_occupied_by_block(pos) and !will_be_occupied_by_monster(pos):
-		_prepared_monster_moves[idx] = pos.copy()
-		return true
+	if is_moving \
+		and is_on_board \
+		and !is_occupied_by_block(pos) \
+		and !will_be_occupied_by_monster(pos) \
+		and !is_occupied_by_past_player(pos):
+			_prepared_monster_moves[idx] = pos.copy()
+			return true
 	return false
 
 func get_monster_ids() -> Array:
