@@ -4,6 +4,7 @@
 [ext_resource path="res://sprites/laser_monster.png" type="Texture" id=2]
 
 [node name="LaserMonster" type="Node2D"]
+position = Vector2( 5.0365, -22.0831 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_group_": true

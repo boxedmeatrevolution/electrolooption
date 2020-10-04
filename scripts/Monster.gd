@@ -4,15 +4,21 @@ const IVec := preload("res://scripts/IVec.gd").IVec
 const GameState := preload("res://scripts/GameState.gd")
 const MonsterDeath := preload("res://entities/MonsterDeath.tscn")
 
+onready var sprite := $Sprite
+
 var game_state : GameState
 var idx : int
 
 const MODE_DEFAULT := 0
 const MODE_MOVING := 1
 const MODE_ATTACKING := 2
+const MODE_DYING := 3
+
+const DEATH_TIME := 0.3
 
 var mode := MODE_DEFAULT
 var attack_timer := 0.0
+var death_timer := 0.0
 
 func setup(game_state: GameState, idx : int) -> void:
 	self.game_state = game_state
@@ -36,6 +42,16 @@ func _process(delta: float) -> void:
 		attack_timer -= delta
 		if attack_timer < 0:
 			mode = MODE_DEFAULT
+	elif mode == MODE_DYING:
+		death_timer += delta
+		var mod := 5.0 * death_timer / DEATH_TIME;
+		sprite.modulate = Color(1.0 + mod, 1.0 + mod, 1.0 + mod, 1.0)
+		if death_timer > DEATH_TIME:
+			var monster_death := MonsterDeath.instance()
+			monster_death.global_position = self.global_position
+			get_parent().add_child(monster_death)
+			queue_free()
+			
 
 func _move(idx: int) -> void:
 	if idx == self.idx:
@@ -48,10 +64,7 @@ func _attack(idx: int) -> void:
 
 func _death(idx: int) -> void:
 	if idx == self.idx:
-		var monster_death := MonsterDeath.instance()
-		monster_death.global_position = self.global_position
-		get_parent().add_child(monster_death)
-		queue_free()
+		mode = MODE_DYING
 
 func _prepare(idx: int) -> void:
 	# Monster AI goes here.
