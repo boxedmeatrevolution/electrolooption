@@ -80,7 +80,6 @@ func _add_player_move_tiles() -> void:
 		player_move_tiles.append(move_tile)
 
 func _phase_change(phase_idx: int) -> void:
-	print("What")
 	# Clear old tiles
 	if phase_idx == ((GameState.PHASE_MONSTER_ATTACK + 1) % GameState.NUM_PHASES):
 		for tile in monster_attack_tiles:
