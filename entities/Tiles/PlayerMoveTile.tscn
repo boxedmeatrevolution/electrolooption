@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://sprites/player_move_tile.png" type="Texture" id=1]
+[ext_resource path="res://scripts/Tile.gd" type="Script" id=2]
+
+[node name="MonsterMoveTile" type="Node2D"]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
