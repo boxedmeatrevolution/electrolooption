@@ -46,7 +46,23 @@ func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
 		phase_timer -= delta
 		if phase_timer < 0:
+			var moves = false;
+			var attacks = false;
+			if game_state.phase == GameState.PHASE_MONSTER_MOVE - 1:
+				for monster_idx in game_state.get_monster_ids():
+					if game_state.get_monster_move(monster_idx) != null:
+						moves = true
+						break
+			if game_state.phase == GameState.PHASE_MONSTER_ATTACK - 1:
+				for monster_idx in game_state.get_monster_ids():
+					if game_state.get_monster_attack(monster_idx) != null:
+						attacks = true
+						break
 			game_state.phase_complete()
+			if game_state.phase == GameState.PHASE_MONSTER_MOVE && !moves:
+				game_state.phase_complete()
+			if game_state.phase == GameState.PHASE_MONSTER_ATTACK && !attacks:
+				game_state.phase_complete()
 			phase_timer = 0.5
 
 func _phase_change(phase_idx: int) -> void:
