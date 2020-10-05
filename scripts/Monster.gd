@@ -15,7 +15,7 @@ const MODE_MOVING := 1
 const MODE_ATTACKING := 2
 const MODE_DYING := 3
 
-const DEATH_TIME := 1.5
+const DEATH_TIME := 1.2
 
 var mode := MODE_DEFAULT
 var attack_timer := 0.0

@@ -10,7 +10,7 @@ onready var valid := false
 onready var sprite := $Sprite
 
 var death_timer := 0.0
-var DEATH_TIME := 1.5
+var DEATH_TIME := 1.2
 var dying := false
 
 var anchor := Vector2.ZERO

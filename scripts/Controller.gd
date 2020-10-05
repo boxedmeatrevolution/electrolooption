@@ -69,14 +69,15 @@ func _ready() -> void:
 	background.add_child(player_place_rewind_button)
 
 func _on_loop() -> void:
-	phase_timer += 1.8
+	phase_timer += 1.5
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
 		phase_timer -= delta
 		if phase_timer < 0:
-			var moves = false;
-			var attacks = false;
+			var moves := false
+			var attacks := false
+			var spawns := game_state._prepared_monster_spawn.empty()
 			if game_state.phase == GameState.PHASE_MONSTER_MOVE - 1:
 				for monster_idx in game_state.get_monster_ids():
 					if game_state.get_monster_move(monster_idx) != null:
@@ -91,6 +92,10 @@ func _process(delta: float) -> void:
 			if game_state.phase == GameState.PHASE_MONSTER_MOVE && !moves:
 				game_state.phase_complete()
 			if game_state.phase == GameState.PHASE_MONSTER_ATTACK && !attacks:
+				game_state.phase_complete()
+			if game_state.phase == GameState.PHASE_MONSTER_PREPARE && !spawns:
+				game_state.phase_complete()
+			if game_state.phase == GameState.PHASE_MONSTER_SPAWN:
 				game_state.phase_complete()
 			phase_timer = 0.5
 

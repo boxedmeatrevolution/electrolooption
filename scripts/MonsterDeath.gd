@@ -3,8 +3,8 @@ extends Node2D
 const Blob := preload("res://entities/Effects/Blob.tscn")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
 
-const NUM_BLOBS := 10
-const NUM_LIGHTNING := 6
+const NUM_BLOBS := 7
+const NUM_LIGHTNING := 4
 const LIGHTNING_TIME := 0.4
 onready var lifetime := 0.0
 
