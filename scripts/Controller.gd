@@ -63,7 +63,7 @@ func _ready() -> void:
 	game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	_add_player_move_tiles()
 	player_rewind_button.position = Vector2(140, 1080 - 140)
-	player_place_rewind_button.position = Vector2(360, 1080 - 140)
+	player_place_rewind_button.position = Vector2(400, 1080 - 140)
 	background.add_child(player_rewind_button)
 	background.add_child(player_place_rewind_button)
 

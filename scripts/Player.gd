@@ -15,6 +15,7 @@ func _ready() -> void:
 	player_move_tile_parent.visible = false
 
 func _process(delta: float) -> void:
+	select.rotation += delta * (0.5 + select.frame)
 	if Utility.mode == Utility.MODE_PLAYER_DRAG:
 		self.position = get_global_mouse_position()
 		self.player_move_tile_parent.visible = true

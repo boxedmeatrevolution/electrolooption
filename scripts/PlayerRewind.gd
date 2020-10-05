@@ -37,6 +37,7 @@ func _phase_change(phase_idx : int) -> void:
 		self.valid = self.game_state.test_player_rewind(idx)
 
 func _process(delta : float) -> void:
+	select.rotation += delta * (0.5 + select.frame)
 	if Utility.mode == Utility.MODE_PLAYER_REWIND && self.valid:
 		select.visible = true
 	else:

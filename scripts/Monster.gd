@@ -47,6 +47,7 @@ func _process(delta: float) -> void:
 			position = target
 			mode = MODE_DEFAULT
 	elif mode == MODE_ATTACKING:
+		sprite.frame = 2
 		attack_timer -= delta
 		if attack_timer < 0:
 			mode = MODE_DEFAULT
@@ -68,7 +69,7 @@ func _move(idx: int) -> void:
 func _attack(idx: int) -> void:
 	if idx == self.idx:
 		mode = MODE_ATTACKING
-		attack_timer = 1.0
+		attack_timer = 0.5
 
 func _death(idx: int) -> void:
 	if idx == self.idx:

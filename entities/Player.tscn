@@ -20,7 +20,7 @@ texture = ExtResource( 1 )
 hframes = 3
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2( 0, -40 )
+position = Vector2( 0, -39 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2( -2.57635, -27.2359 )
@@ -28,7 +28,7 @@ shape = SubResource( 1 )
 
 [node name="Select" type="Sprite" parent="."]
 visible = false
-position = Vector2( 0, -32 )
+position = Vector2( 0, -70 )
 texture = ExtResource( 3 )
 hframes = 2
 [connection signal="input_event" from="Area2D" to="." method="_input_event"]
