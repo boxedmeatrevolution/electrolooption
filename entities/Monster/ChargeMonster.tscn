@@ -4,6 +4,7 @@
 [ext_resource path="res://sprites/charge_monster.png" type="Texture" id=2]
 
 [node name="ChargeMonster" type="Node2D"]
+z_index = 10
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_group_": true
