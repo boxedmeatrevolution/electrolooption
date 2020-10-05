@@ -91,9 +91,9 @@ func _do_loop(idx):
 			rope_map[x].append(false)
 	
 	## Populate the rope map
-	for i in range(idx, loop.size()):
+	for i in range(loop.size()):
 		var pt = _player_rewind_pos[loop[i]]
-		var next_pt = _player_rewind_pos[loop[idx]]
+		var next_pt = _player_rewind_pos[loop[0]]
 		if i < loop.size()-1:
 			next_pt = _player_rewind_pos[loop[i+1]]
 		rope_map[pt.x][pt.y] = true
@@ -144,18 +144,17 @@ func _do_loop(idx):
 		_prepared_monster_attack.erase(i)
 		emit_signal("on_monster_death", i)
 		
-	_calc_connection_map()
-	_calc_rope_pos()
-	emit_signal("on_player_loop", loop)
 	## Remove player clones
 	loop.sort()
 	var revloop = []
 	for i in loop:
 		revloop.push_front(i)
-	print(_player_rewind_pos)
 	for i in revloop:
 		_player_rewind_pos.remove(i)
-	print(_player_rewind_pos)
+		
+	_calc_connection_map()
+	_calc_rope_pos()
+	emit_signal("on_player_loop", loop)
 
 func _do_fill(x, y, fill_map, rope_map):
 	fill_map[x][y] = true
@@ -400,19 +399,6 @@ func _calc_rope_pos():
 				for x in range(int(min(pos.x, pos_2.x)) + 1, int(max(pos.x, pos_2.x))):
 					_rope_pos.append(IVec.new(x, pos.y))
 		_rope_pos.append(pos)
-#	if _player_rewind_pos.size() == 0:
-#		return
-#	var pt = _player_rewind_pos[0]
-#	_rope_pos.append(_player_rewind_pos[0])
-#	for i in range(_player_rewind_pos.size()):
-#		pt = _player_rewind_pos[i]
-#		var next_pt = _player_pos
-#		if i < _player_rewind_pos.size() - 1:
-#			next_pt = _player_rewind_pos[i + 1]
-#		var line = _get_line(pt, next_pt)
-#		if line.size() > 1:
-#			for j in range(1, line.size()):
-#				_rope_pos.append(line[j])
 
 #################
 ## PLAYER!!!!   #
