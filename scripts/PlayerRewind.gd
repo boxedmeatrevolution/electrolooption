@@ -45,6 +45,7 @@ func _process(delta : float) -> void:
 func _rewind(idx: int) -> void:
 	print("rewind ", idx)
 	if idx == self.idx:
+		_clean_lightnings()
 		queue_free()
 	else:
 		self.idx -= 1
@@ -53,6 +54,7 @@ func _rewind(idx: int) -> void:
 func _loop(loop : Array) -> void:
 	for loop_idx in loop:
 		if loop_idx == self.idx:
+			_clean_lightnings()
 			queue_free()
 			return
 	for loop_idx in loop:
@@ -64,9 +66,7 @@ func _place_rewind() -> void:
 	_update_lightnings()
 
 func _update_lightnings() -> void:
-	for lightning in self.lightnings:
-		lightning.queue_free()
-	lightnings.clear()
+	_clean_lightnings()
 	var neighbours : Array = game_state._connection_map[self.idx]
 	for neighbour in neighbours:
 		var neighbour_y := Utility.board_to_world(game_state._player_rewind_pos[neighbour]).y
@@ -80,6 +80,11 @@ func _update_lightnings() -> void:
 		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour])
 		self.get_parent().add_child(lightning)
 		lightnings.append(lightning)
+
+func _clean_lightnings() -> void:
+	for lightning in self.lightnings:
+		lightning.queue_free()
+	lightnings.clear()
 
 func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
 	if event is InputEventMouseButton:
