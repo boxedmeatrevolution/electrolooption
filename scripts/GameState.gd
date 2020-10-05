@@ -14,9 +14,10 @@ var HEIGHT := 8
 const PLAYER_CAN_GO_THROUGH_ROPES := false
 const MONSTER_CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
-const PLAYER_MAX_MOVE := 1
+const PLAYER_MAX_MOVE := 8
 const MANUAL_REWIND_PLACE := true
 const LIGHTNING_ZAPS_MONSTERS := true
+const MONSTERS_DO_NOT_RUN_INTO_DEATH := true
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -221,6 +222,8 @@ func phase_complete() -> int:
 		var to_kill = []
 		for idx in _prepared_monster_moves.keys():
 			if idx in _monster_pos:
+				if MONSTERS_DO_NOT_RUN_INTO_DEATH and !test_monster_move(idx, _prepared_monster_moves[idx]):
+					continue ##don't let the poor boy die :'(
 				_monster_pos[idx] = _prepared_monster_moves[idx]
 				emit_signal("on_monster_move", idx)
 				if LIGHTNING_ZAPS_MONSTERS and is_occupied_by_rope(_monster_pos[idx]):
@@ -257,14 +260,19 @@ func is_threatened(pos: IVec) -> bool:
 				return true
 	return false
 
+func is_on_board(pos: IVec) -> bool:
+	return pos.x >= 0 and pos.y >= 0 and pos.x < WIDTH and pos.y < HEIGHT
+
 func is_occupied_by_block(pos: IVec) -> bool:
 	for bpos in _block_pos:
 		if pos.eq(bpos):
 			return true
 	return false
 
-func will_be_occupied_by_monster(pos: IVec) -> bool:
+func will_be_occupied_by_monster(pos: IVec, me:=-1) -> bool:
 	for idx in _monsters.keys():
+		if me != -1 and me == idx:
+			continue
 		var mpos = _monster_pos[idx]
 		if idx in _prepared_monster_moves:
 			mpos = _prepared_monster_moves[idx]
@@ -530,7 +538,7 @@ func _get_legal_monster_spawns() -> Array:
 func get_cached_legal_monster_spawns() -> Array:
 	return _legal_monster_spawns
 
-func prepare_monster_move(idx: int, pos: IVec) -> bool:
+func test_monster_move(idx: int, pos: IVec) -> bool:
 	assert(idx in _monsters)
 	var mpos = _monster_pos[idx]
 	var is_moving = !pos.eq(mpos)
@@ -538,11 +546,17 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 	if is_moving \
 		and is_on_board \
 		and !is_occupied_by_block(pos) \
-		and !will_be_occupied_by_monster(pos) \
+		and !will_be_occupied_by_monster(pos, idx) \
 		and !is_occupied_by_past_player(pos) \
 		and (MONSTER_CAN_GO_THROUGH_ROPES or !is_occupied_by_rope(pos)):
-			_prepared_monster_moves[idx] = pos.copy()
 			return true
+	return false
+
+func prepare_monster_move(idx: int, pos: IVec) -> bool:
+	assert(idx in _monsters)
+	if test_monster_move(idx, pos):
+		_prepared_monster_moves[idx] = pos.copy()
+		return true
 	return false
 
 func get_monster_ids() -> Array:
