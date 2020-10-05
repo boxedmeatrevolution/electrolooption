@@ -185,8 +185,8 @@ func phase_complete() -> int:
 			_player_rewind_pos.append(_player_pos.copy())
 			_calc_connection_map()
 			_calc_rope_pos()
-			_do_loop(_player_rewind_pos.size() - 1)
 			emit_signal("on_player_place_rewind")
+			_do_loop(_player_rewind_pos.size() - 1)
 		if _prepared_player_move != null:
 			_player_pos = _prepared_player_move
 			emit_signal("on_player_move")
