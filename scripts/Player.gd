@@ -8,6 +8,11 @@ onready var select := $Select
 onready var sprite := $Sprite
 var animate_timer := 0.0
 
+onready var audio_pickup := $AudioPickup
+onready var audio_drop := $AudioDrop
+onready var audio_place_rewind := $AudioPlaceRewind
+onready var stream_drop := [preload("res://sounds/drop_1.wav"),preload("res://sounds/drop_2.wav")]
+
 var game_state : GameState
 onready var controller := get_tree().get_root().find_node("Controller", true, false)
 
@@ -45,9 +50,6 @@ func _mouse_enter():
 func _mouse_exit():
 	select.frame = 0
 
-func _rewind(idx: int) -> void:
-	pass
-
 func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 	if event is InputEventMouseButton:
 		if event.pressed && event.button_index == BUTTON_LEFT:
@@ -56,9 +58,11 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 					if game_state.prepare_player_place_rewind():
 						game_state.phase_complete()
 						Utility.mode = Utility.MODE_ENEMY_TURN
+						audio_place_rewind.play()
 			if Utility.mode == Utility.MODE_PLAYER_DEFAULT:
 				if game_state.phase == GameState.PHASE_PLAYER_PREPARE:
 					Utility.mode = Utility.MODE_PLAYER_DRAG
+					audio_pickup.play()
 		elif !event.pressed && event.button_index == BUTTON_LEFT:
 			if Utility.mode == Utility.MODE_PLAYER_DRAG:
 				# Check if movement is valid.
@@ -66,5 +70,7 @@ func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 				if game_state.prepare_player_move(board_position):
 					game_state.phase_complete()
 					Utility.mode = Utility.MODE_ENEMY_TURN
+					audio_drop.stream = stream_drop[randi() % 2]
+					audio_drop.play()
 				else:
 					Utility.mode = Utility.MODE_PLAYER_DEFAULT

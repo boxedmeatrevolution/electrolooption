@@ -10,6 +10,15 @@ onready var select := $Select
 onready var valid := false
 onready var sprite := $Sprite
 
+onready var audio_zap := $AudioZap
+onready var stream_zap := [
+	preload("res://sounds/zap_1.wav"),
+	preload("res://sounds/zap_2.wav"),
+	preload("res://sounds/zap_3.wav"),
+	preload("res://sounds/zap_4.wav")
+]
+onready var audio_zap_cont := $AudioZapCont
+
 var death_timer := 0.0
 var DEATH_TIME := 1.2
 var dying := false
@@ -66,8 +75,10 @@ func _process(delta : float) -> void:
 			zap_timer = 0.0
 		else:
 			sprite.frame = 0
-			if randf() < 1.0 * delta:
+			if randf() < 0.5 * delta:
 				zap_timer = 0.0
+				audio_zap.stream = stream_zap[randi() % 4]
+				audio_zap.play()
 	if dying:
 		death_timer += delta
 		var mod := 5.0 * death_timer / DEATH_TIME;
@@ -89,9 +100,9 @@ func _rewind(idx: int) -> void:
 	if idx == self.idx:
 		_clean_lightnings()
 		queue_free()
-	else:
+	elif self.idx > idx:
 		self.idx -= 1
-		_update_lightnings()
+	_update_lightnings()
 
 func _loop(loop : Array) -> void:
 	for loop_idx in loop:
@@ -113,11 +124,14 @@ func _place_rewind() -> void:
 
 func _update_lightnings() -> void:
 	_clean_lightnings()
+	self.zap_cont = false
+	self.audio_zap_cont.stop()
 	var neighbours : Array = game_state._connection_map[self.idx]
 	var pos : IVec = game_state._player_rewind_pos[self.idx]
 	var y := Utility.board_to_world(pos).y
 	for neighbour in neighbours:
 		self.zap_cont = true
+		self.audio_zap_cont.play()
 		var neighbour_pos : IVec = game_state._player_rewind_pos[neighbour]
 		var neighbour_y := Utility.board_to_world(neighbour_pos).y
 		if y > neighbour_y:
@@ -135,7 +149,6 @@ func _update_lightnings() -> void:
 		lightnings.append(lightning)
 
 func _clean_lightnings() -> void:
-	self.zap_cont = false
 	for lightning in self.lightnings:
 		lightning.queue_free()
 	lightnings.clear()
@@ -148,5 +161,3 @@ func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
 					if game_state.prepare_player_rewind(idx):
 						game_state.phase_complete()
 						Utility.mode = Utility.MODE_ENEMY_TURN
-					else:
-						Utility.mode = Utility.MODE_PLAYER_DEFAULT

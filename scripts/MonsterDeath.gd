@@ -4,6 +4,8 @@ const Blob := preload("res://entities/Effects/Blob.tscn")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
 const Poof := preload("res://entities/Effects/Poof.tscn")
 
+onready var audio := $AudioMonsterDeath
+
 const NUM_BLOBS := 7
 const NUM_LIGHTNING := 4
 const LIGHTNING_TIME := 0.4
@@ -18,6 +20,7 @@ func _ready() -> void:
 	parent.add_child(poof)
 	poof.global_position = global_position + Vector2(0, 1)
 	blobs.resize(NUM_BLOBS)
+	audio.play()
 	lightnings.resize(NUM_BLOBS)
 	for i in range(0, NUM_BLOBS):
 		blobs[i] = Blob.instance()
