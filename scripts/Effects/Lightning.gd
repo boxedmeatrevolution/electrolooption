@@ -9,8 +9,8 @@ var start = null
 
 const LENGTH_PER_SEGMENT := 10.0
 const NORMAL := 32.0
-const JITTER_TIME := 10
-const JITTER_SPACE := 100
+const JITTER_TIME := 5
+const JITTER_SPACE := 50
 
 func _ready() -> void:
 	rng.randomize()
@@ -36,7 +36,7 @@ func _process(delta: float) -> void:
 	points[0] = 0.0
 	points[-1] = 0.0
 	for i in range(1, points.size() - 1):
-		var shift := abs(Utility.gaussian(0.0, JITTER_TIME * delta))
+		var shift := min(abs(rng.randfn(0.0, JITTER_TIME * delta)), JITTER_TIME / 30.0)
 		if distance != 0.0:
 			var diff : float = (points[i - 1] - 2.0 * points[i] + points[i + 1]) / pow((distance / (points.size() - 1)), 2)
 			if randf() < 0.5 - diff * JITTER_SPACE * JITTER_SPACE:
