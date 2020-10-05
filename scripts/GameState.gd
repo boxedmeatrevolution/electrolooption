@@ -149,8 +149,13 @@ func _do_loop(idx):
 	emit_signal("on_player_loop", loop)
 	## Remove player clones
 	loop.sort()
-	for idx in loop:
-		_player_rewind_pos.remove(idx)
+	var revloop = []
+	for i in loop:
+		revloop.push_front(i)
+	print(_player_rewind_pos)
+	for i in revloop:
+		_player_rewind_pos.remove(i)
+	print(_player_rewind_pos)
 
 func _do_fill(x, y, fill_map, rope_map):
 	fill_map[x][y] = true
@@ -342,8 +347,6 @@ func _find_path_to_node(idx_start: int, idx_end) -> Array:
 		while true:
 			path.push_front(previous[path[0]])
 			if path[0] == idx_start:
-				if idx_start == idx_end:
-					path.pop_back()
 				break
 	
 	return path
