@@ -1,6 +1,8 @@
 extends "res://scripts/Monster.gd"
 
-const SHOOT_RANGE := 4
+const SHOOT_RANGE := 3
+
+const Attack := preload("res://entities/Monster/LaserMonsterAttack.tscn")
 
 func _prepare(idx: int) -> void:
 	# Monster AI goes here.
@@ -15,6 +17,7 @@ func _prepare(idx: int) -> void:
 		for i in range(1, SHOOT_RANGE + 1):
 			tiles.append(IVec.new(pos.x + i * sign(delta_x), pos.y + i * sign(delta_y)))
 		if game_state.prepare_monster_attack(idx, tiles):
+			Utility.create_monster_attacks(get_parent(), Attack, self.idx, self.game_state, tiles)
 			return
 	var next_move := []
 	if abs(delta_y) == 1 && abs(delta_x) == 1:

@@ -6,6 +6,8 @@ const MonsterDeath := preload("res://entities/MonsterDeath.tscn")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
 const Poof := preload("res://entities/Effects/Poof.tscn")
 
+const AttackParent := preload("res://entities/Monster/MonsterAttack.tscn")
+
 onready var sprite := $Sprite
 
 var game_state : GameState
@@ -124,6 +126,7 @@ func _prepare(idx: int) -> void:
 			IVec.new(pos.x + 1, pos.y + 1),
 		]
 		if game_state.prepare_monster_attack(idx, tiles):
+			Utility.create_monster_attacks(get_parent(), AttackParent, self.idx, self.game_state, tiles)
 			return
 	var next_move := []
 	if abs(delta_y) > abs(delta_x):
@@ -154,4 +157,4 @@ func _prepare(idx: int) -> void:
 		]
 	for move in next_move:
 		if game_state.prepare_monster_move(idx, move):
-			return
+			return	

@@ -25,9 +25,15 @@ const levels := [
 	"res://levels/REAL_LEVEL_4.tscn",
 	"res://levels/REAL_LEVEL_5.tscn",
 	"res://levels/REAL_LEVEL_6.tscn",
+	"res://levels/REAL_LEVEL_7.tscn",
+	"res://levels/REAL_LEVEL_8.tscn",
+	"res://levels/REAL_LEVEL_9.tscn",
+	"res://levels/REAL_LEVEL_10.tscn"
 ]
 
 var current_level := 0
+
+const HARD_MODE := false
 
 func create_monster_attacks(parent : Node, attack_type : PackedScene, idx : int, game_state : Object, tiles : Array):
 	for tile in tiles:
