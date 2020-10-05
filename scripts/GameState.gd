@@ -14,10 +14,11 @@ var HEIGHT := 8
 const PLAYER_CAN_GO_THROUGH_ROPES := false
 const MONSTER_CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
-const PLAYER_MAX_MOVE := 8
+const PLAYER_MAX_MOVE := 4
 const MANUAL_REWIND_PLACE := true
 const LIGHTNING_ZAPS_MONSTERS := true
 const MONSTERS_DO_NOT_RUN_INTO_DEATH := true
+const PLAYER_GETS_SLOWER_WITH_DROPS := true
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -434,9 +435,12 @@ func _calc_rope_pos():
 #################
 func _get_legal_player_moves() -> Array:
 	var ret = []
+	var max_move := PLAYER_MAX_MOVE
+	if PLAYER_GETS_SLOWER_WITH_DROPS:
+		max_move = max_move - _player_rewind_pos.size()
 	for dir in DIRS:
 		var pos = _player_pos.copy()
-		for distance in range(0, PLAYER_MAX_MOVE):
+		for distance in range(0, max_move):
 			pos = pos.add(dir)
 			var is_off_board = pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT
 			if is_off_board \
