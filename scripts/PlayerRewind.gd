@@ -23,6 +23,9 @@ func setup(game_state: GameState):
 	position = Utility.board_to_world(self.game_state.get_past_player_pos()[idx]) + Vector2(0, 1)
 	self.valid = self.game_state.test_player_rewind(idx)
 
+func _ready():
+	_update_lightnings()
+
 func _mouse_enter():
 	select.frame = 1
 
@@ -68,10 +71,17 @@ func _update_lightnings() -> void:
 	lightnings.clear()
 	var neighbours : Array = game_state._connection_map[self.idx]
 	for neighbour in neighbours:
+		var neighbour_y := Utility.board_to_world(game_state._player_rewind_pos[neighbour]).y
+		var y := Utility.board_to_world(game_state._player_rewind_pos[self.idx]).y
+		if y > neighbour_y:
+			continue
+		elif y == neighbour_y && self.idx > neighbour:
+			continue
 		var lightning := Lightning.instance()
 		lightning.global_position = self.position
 		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour])
 		self.get_parent().add_child(lightning)
+		lightnings.append(lightning)
 
 func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
 	if event is InputEventMouseButton:

@@ -382,15 +382,18 @@ func _calc_connection_map() -> void:
 func _calc_rope_pos():
 	_rope_pos = []
 	for idx in range(0, _connection_map.size()):
+		var pos : IVec = _player_rewind_pos[idx]
 		for idx_2 in _connection_map[idx]:
-			var pos : IVec = _player_rewind_pos[idx]
+			if idx_2 < idx:
+				continue
 			var pos_2 : IVec = _player_rewind_pos[idx_2]
 			if pos.x == pos_2.x:
-				for y in range(int(min(pos.y, pos_2.y)), int(max(pos.y, pos_2.y)) + 1):
+				for y in range(int(min(pos.y, pos_2.y)) + 1, int(max(pos.y, pos_2.y))):
 					_rope_pos.append(IVec.new(pos.x, y))
 			else:
-				for x in range(int(min(pos.x, pos_2.x)), int(max(pos.x, pos_2.x)) + 1):
+				for x in range(int(min(pos.x, pos_2.x)) + 1, int(max(pos.x, pos_2.x))):
 					_rope_pos.append(IVec.new(x, pos.y))
+		_rope_pos.append(pos)
 #	if _player_rewind_pos.size() == 0:
 #		return
 #	var pt = _player_rewind_pos[0]
@@ -420,9 +423,7 @@ func _get_legal_player_moves() -> Array:
 				or is_occupied_by_monster(pos):
 					break
 			if !CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos):
-				if is_occupied_by_past_player(pos) && !is_threatened(pos) && !will_be_occupied_by_monster(pos):
-					ret.append(pos)
-				break
+				continue
 			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
 				continue
 			ret.append(pos)
@@ -468,7 +469,7 @@ func test_player_rewind(idx: int) -> bool:
 func test_player_place_rewind() -> bool:
 	# Check that not threatened.
 	var pos := _player_pos
-	if is_threatened(pos) or will_be_occupied_by_monster(pos):
+	if is_threatened(pos) or will_be_occupied_by_monster(pos) or is_occupied_by_past_player(pos):
 		return false
 	return true
 	
