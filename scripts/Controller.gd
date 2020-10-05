@@ -18,6 +18,8 @@ const PlayerPlaceRewindButton := preload("res://entities/UI/PlayerPlaceRewindBut
 onready var main := get_tree().get_root().find_node("Main", true, false)
 onready var background := get_tree().get_root().find_node("Background", true, false)
 onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMoveTiles", true, false)
+onready var audio_loop_complete := $AudioLoopComplete
+onready var audio_rewind := $AudioRewind
 var player : Player
 var game_state : GameState
 var phase_timer := 0.0
@@ -62,14 +64,20 @@ func _ready() -> void:
 	game_state.connect("on_phase_change", self, "_phase_change")
 	game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	game_state.connect("on_player_loop", self, "_on_loop")
+	game_state.connect("on_player_rewind", self, "_rewind")
 	_add_player_move_tiles()
 	player_rewind_button.position = Vector2(140, 1080 - 140)
 	player_place_rewind_button.position = Vector2(400, 1080 - 140)
 	background.add_child(player_rewind_button)
 	background.add_child(player_place_rewind_button)
 
-func _on_loop() -> void:
+func _on_loop(loop: Array) -> void:
+	print("LOOP COMPLETE")
+	audio_loop_complete.play()
 	phase_timer += 1.5
+
+func _rewind(idx : int) -> void:
+	audio_rewind.play()
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:

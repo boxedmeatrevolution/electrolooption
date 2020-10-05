@@ -50,9 +50,6 @@ func _mouse_enter():
 func _mouse_exit():
 	select.frame = 0
 
-func _rewind(idx: int) -> void:
-	pass
-
 func _input_event(viewport: Node2D, event: InputEvent, idx: int):
 	if event is InputEventMouseButton:
 		if event.pressed && event.button_index == BUTTON_LEFT:

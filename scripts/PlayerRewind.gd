@@ -161,5 +161,3 @@ func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
 					if game_state.prepare_player_rewind(idx):
 						game_state.phase_complete()
 						Utility.mode = Utility.MODE_ENEMY_TURN
-					else:
-						Utility.mode = Utility.MODE_PLAYER_DEFAULT
