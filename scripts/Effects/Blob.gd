@@ -10,6 +10,9 @@ onready var MAX_LIFETIME := 1.0
 onready var lifetime := MAX_LIFETIME
 const GRAVITY := 800.0
 
+func _ready():
+	sprite.frame = randi() % 3
+
 func _process(delta : float) -> void:
 	sprite.rotation += delta * rot_speed
 	position += delta * velocity
