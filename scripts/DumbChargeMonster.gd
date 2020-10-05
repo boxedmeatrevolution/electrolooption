@@ -33,13 +33,4 @@ func _prepare(idx: int) -> void:
 	elif abs(x_dir) == 1 and abs(y_dir) == 1:
 		tiles.append(IVec.new(move.x - x_dir, move.y))
 		tiles.append(IVec.new(move.x, move.y - y_dir))
-#		elif x_dir == 1 and y_dir == 1:
-#			tiles.append(IVec.new(move.x - 1, move.y))
-#			tiles.append(IVec.new(move.x, move.y - 1))
-#		elif x_dir == 1 and y_dir == -1:
-#			tiles.append(IVec.new(move.x - 1, move.y))
-#			tiles.append(IVec.new(move.x, move.y + 1))
-#		elif x_dir == -1 and y_dir == -1:
-#			tiles.append(IVec.new(move.x + 1, move.y))
-#			tiles.append(IVec.new(move.x, move.y + 1))
 	game_state.prepare_monster_attack(idx, tiles)
