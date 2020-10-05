@@ -100,9 +100,9 @@ func _rewind(idx: int) -> void:
 	if idx == self.idx:
 		_clean_lightnings()
 		queue_free()
-	else:
+	elif self.idx > idx:
 		self.idx -= 1
-		_update_lightnings()
+	_update_lightnings()
 
 func _loop(loop : Array) -> void:
 	for loop_idx in loop:
