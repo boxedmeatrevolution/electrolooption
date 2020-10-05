@@ -31,10 +31,10 @@ position = Vector2( 478.062, 604.118 )
 position = Vector2( 480.44, 487.575 )
 
 [node name="Player" parent="Main" instance=ExtResource( 2 )]
-position = Vector2( 681.415, 712.179 )
+position = Vector2( 762.281, 645.583 )
 
 [node name="Monster3" parent="Main" instance=ExtResource( 3 )]
-position = Vector2( 1151.15, 428.114 )
+position = Vector2( 1144.01, 425.735 )
 script = ExtResource( 4 )
 
 [node name="Monster4" parent="Main" instance=ExtResource( 3 )]

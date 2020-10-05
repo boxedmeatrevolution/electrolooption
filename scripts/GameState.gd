@@ -14,12 +14,12 @@ var HEIGHT := 8
 const PLAYER_CAN_GO_THROUGH_ROPES := false
 const MONSTER_CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
-const PLAYER_MAX_MOVE := 4
+const PLAYER_MAX_MOVE := 3
 const MANUAL_REWIND_PLACE := true
 const LIGHTNING_ZAPS_MONSTERS := false
 const LIGHTNING_TRAPS_MONSTERS := true
 const MONSTERS_DO_NOT_RUN_INTO_DEATH := true
-const PLAYER_GETS_SLOWER_WITH_DROPS := true
+const PLAYER_GETS_SLOWER_WITH_DROPS := false
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
