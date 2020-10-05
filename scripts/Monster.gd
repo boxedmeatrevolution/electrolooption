@@ -19,6 +19,7 @@ const DEATH_TIME := 0.3
 var mode := MODE_DEFAULT
 var attack_timer := 0.0
 var death_timer := 0.0
+var animation_timer := 0.0
 
 func setup(game_state: GameState, idx : int) -> void:
 	self.game_state = game_state
@@ -30,6 +31,13 @@ func setup(game_state: GameState, idx : int) -> void:
 	position = Utility.board_to_world(self.game_state.get_monster_pos(idx))
 
 func _process(delta: float) -> void:
+	animation_timer += delta
+	if animation_timer >= 0.0:
+		sprite.frame = 0
+	if animation_timer >= 0.6:
+		sprite.frame = 1
+	if animation_timer >= 1.2:
+		animation_timer = 0.0
 	if mode == MODE_DEFAULT:
 		pass
 	elif mode == MODE_MOVING:
