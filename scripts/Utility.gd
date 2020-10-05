@@ -18,8 +18,13 @@ const MODE_ENEMY_TURN := 4
 
 var mode := MODE_PLAYER_DEFAULT
 
+var timer := 0.0
+
 func _ready() -> void:
 	_update_transform()
+
+func _process(delta : float):
+	timer += delta
 
 func gaussian(mean: float = 0.0, std: float = 1.0) -> float:
 	return std * sqrt(-2.0 * log(randf())) * cos(2.0 * PI * randf()) + mean

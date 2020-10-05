@@ -2,14 +2,21 @@ extends Node2D
 
 const GameState := preload("res://scripts/GameState.gd")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
+const IVec := preload("res://scripts/IVec.gd").IVec
 
 onready var area := $Area2D
 onready var select := $Select
 onready var valid := false
+onready var sprite := $Sprite
+
+var anchor := Vector2.ZERO
 
 var game_state : GameState
 var idx : int
 var next : Node2D
+
+var zap_cont := false
+var zap_timer := 0.0
 
 var lightnings := []
 
@@ -20,7 +27,8 @@ func setup(game_state: GameState):
 	self.game_state.connect("on_player_loop", self, "_loop")
 	self.game_state.connect("on_phase_change", self, "_phase_change")
 	self.game_state.connect("on_player_place_rewind", self, "_place_rewind")
-	position = Utility.board_to_world(self.game_state.get_past_player_pos()[idx]) + Vector2(0, 1)
+	self.anchor = Utility.board_to_world(self.game_state.get_past_player_pos()[idx]) + Vector2(0, 4)
+	self.position = self.anchor
 	self.valid = self.game_state.test_player_rewind(idx)
 
 func _ready():
@@ -37,6 +45,21 @@ func _phase_change(phase_idx : int) -> void:
 		self.valid = self.game_state.test_player_rewind(idx)
 
 func _process(delta : float) -> void:
+	self.position.y = self.anchor.y + 3.0 * sin(Utility.timer / 1.0)
+	zap_timer += delta
+	if zap_timer > 0.0:
+		sprite.frame = 1
+	if zap_timer > 0.1:
+		sprite.frame = 2
+	if zap_timer > 0.2:
+		sprite.frame = 3
+	if zap_timer > 0.3:
+		if zap_cont:
+			zap_timer = 0.0
+		else:
+			sprite.frame = 0
+			if randf() < 1.0 * delta:
+				zap_timer = 0.0
 	select.rotation += delta * (0.5 + select.frame)
 	if Utility.mode == Utility.MODE_PLAYER_REWIND && self.valid:
 		select.visible = true
@@ -69,20 +92,26 @@ func _place_rewind() -> void:
 func _update_lightnings() -> void:
 	_clean_lightnings()
 	var neighbours : Array = game_state._connection_map[self.idx]
+	var pos : IVec = game_state._player_rewind_pos[self.idx]
+	var y := Utility.board_to_world(pos).y
 	for neighbour in neighbours:
-		var neighbour_y := Utility.board_to_world(game_state._player_rewind_pos[neighbour]).y
-		var y := Utility.board_to_world(game_state._player_rewind_pos[self.idx]).y
+		self.zap_cont = true
+		var neighbour_pos : IVec = game_state._player_rewind_pos[neighbour]
+		var neighbour_y := Utility.board_to_world(neighbour_pos).y
 		if y > neighbour_y:
 			continue
 		elif y == neighbour_y && self.idx > neighbour:
 			continue
+		var lightning_dir := Vector2(sign(neighbour_pos.x - pos.x), sign(neighbour_pos.y - pos.y))
+		var lightning_from_pos := Vector2(0.5 * (lightning_dir.x + lightning_dir.y) * sprite.texture.get_width() / 4 * sprite.scale.x, 0.5 * (lightning_dir.x - lightning_dir.y) * sprite.texture.get_height() * sprite.scale.y)
 		var lightning := Lightning.instance()
-		lightning.global_position = self.position
-		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour])
 		self.get_parent().add_child(lightning)
+		lightning.global_position = self.anchor + lightning_from_pos
+		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour]) + Vector2(0, 4) - lightning_from_pos
 		lightnings.append(lightning)
 
 func _clean_lightnings() -> void:
+	self.zap_cont = false
 	for lightning in self.lightnings:
 		lightning.queue_free()
 	lightnings.clear()
