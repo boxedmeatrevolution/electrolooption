@@ -20,7 +20,7 @@ func get_spawn(gs: GameState) -> Array:
 	var spawns = []
 	var no_monsters = gs.get_monster_ids().size() == 0
 	var turns_since_last_spawn = gs.turn - _turn_of_last_spawn
-	if no_monsters or turns_since_last_spawn >= 15:
+	if false: #no_monsters or turns_since_last_spawn >= 15:
 		var posns = gs.get_cached_legal_monster_spawns()
 		if posns.size() > 0:
 			var i = rng.randi_range(0, posns.size() - 1)

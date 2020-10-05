@@ -11,10 +11,12 @@ const NUM_PHASES := 6
 var WIDTH := 8
 var HEIGHT := 8
 
-const CAN_GO_THROUGH_ROPES := false
+const PLAYER_CAN_GO_THROUGH_ROPES := false
+const MONSTER_CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
-const PLAYER_MAX_MOVE := 2
+const PLAYER_MAX_MOVE := 1
 const MANUAL_REWIND_PLACE := true
+const LIGHTNING_ZAPS_MONSTERS := true
 
 var DIRS := [IVec.new(1,0), IVec.new(1,1), IVec.new(0,1), IVec.new(-1,1), 
 			IVec.new(-1,0), IVec.new(-1,-1), IVec.new(0,-1), IVec.new(1,-1)]
@@ -80,6 +82,15 @@ func _do_loop(idx):
 	## 3. Tiles that are unfilled are bounded by ropes: KILL THE MONSTERS INSIDE
 	## 4. Remove player clones that were destroyed when the loop closed
 	
+	## Kill monsters that get "zapped" by lighning
+	if LIGHTNING_ZAPS_MONSTERS:
+		var to_kill = []
+		for midx in _monster_pos.keys():
+			if is_occupied_by_rope(_monster_pos[midx]):
+				to_kill.append(midx)
+		for midx in to_kill:
+			_kill_monster(midx)
+	
 	var loop := _find_loop(idx)
 	if loop.empty():
 		return
@@ -138,11 +149,7 @@ func _do_loop(idx):
 				## Monster is ensnared
 				to_kill.append(i)
 	for i in to_kill:
-		_monsters.erase(i)
-		_monster_pos.erase(i)
-		_prepared_monster_moves.erase(i)
-		_prepared_monster_attack.erase(i)
-		emit_signal("on_monster_death", i)
+		_kill_monster(i)
 		
 	## Remove player clones
 	loop.sort()
@@ -211,10 +218,17 @@ func phase_complete() -> int:
 		_prepared_monster_attack = {}
 	elif phase == PHASE_MONSTER_MOVE:
 		## Move monsters to new spots
+		var to_kill = []
 		for idx in _prepared_monster_moves.keys():
 			if idx in _monster_pos:
 				_monster_pos[idx] = _prepared_monster_moves[idx]
 				emit_signal("on_monster_move", idx)
+				if LIGHTNING_ZAPS_MONSTERS and is_occupied_by_rope(_monster_pos[idx]):
+					to_kill.append(idx)
+		## Kill monsters that moved onto lightning
+		if LIGHTNING_ZAPS_MONSTERS:
+			for idx in to_kill:
+				_kill_monster(idx)
 		## Reset prepared moves
 		_prepared_monster_moves = {}
 	elif phase == PHASE_MONSTER_PREPARE:
@@ -228,6 +242,13 @@ func phase_complete() -> int:
 		_prepared_monster_spawn = {}
 	emit_signal("on_phase_change", phase)
 	return phase
+
+func _kill_monster(idx: int):
+	_monsters.erase(idx)
+	_monster_pos.erase(idx)
+	_prepared_monster_moves.erase(idx)
+	_prepared_monster_attack.erase(idx)
+	emit_signal("on_monster_death", idx)
 
 func is_threatened(pos: IVec) -> bool:
 	for threatened in _prepared_monster_attack.values():
@@ -414,7 +435,7 @@ func _get_legal_player_moves() -> Array:
 				or is_occupied_by_block(pos) \
 				or is_occupied_by_monster(pos):
 					break
-			if !CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos):
+			if !PLAYER_CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos):
 				break
 			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
 				continue
@@ -518,7 +539,8 @@ func prepare_monster_move(idx: int, pos: IVec) -> bool:
 		and is_on_board \
 		and !is_occupied_by_block(pos) \
 		and !will_be_occupied_by_monster(pos) \
-		and !is_occupied_by_past_player(pos):
+		and !is_occupied_by_past_player(pos) \
+		and (MONSTER_CAN_GO_THROUGH_ROPES or !is_occupied_by_rope(pos)):
 			_prepared_monster_moves[idx] = pos.copy()
 			return true
 	return false
