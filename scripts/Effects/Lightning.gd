@@ -6,7 +6,7 @@ var points := []
 var rng := RandomNumberGenerator.new()
 var segs_start = null
 
-const LENGTH_PER_SEGMENT := 30.0
+const LENGTH_PER_SEGMENT := 10.0
 const NORMAL := 32.0
 const JITTER_TIME := 10
 const JITTER_SPACE := 100

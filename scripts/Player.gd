@@ -5,6 +5,8 @@ const GameState := preload("res://scripts/GameState.gd")
 onready var area := $Area2D
 onready var player_move_tile_parent := get_tree().get_root().find_node("PlayerMoveTiles", true, false)
 onready var select := $Select
+onready var sprite := $Sprite
+var animate_timer := 0.0
 
 var game_state : GameState
 onready var controller := get_tree().get_root().find_node("Controller", true, false)
@@ -16,7 +18,15 @@ func _process(delta: float) -> void:
 	if Utility.mode == Utility.MODE_PLAYER_DRAG:
 		self.position = get_global_mouse_position()
 		self.player_move_tile_parent.visible = true
+		sprite.frame = 2
 	else:
+		animate_timer += delta
+		if animate_timer > 0.0:
+			sprite.frame = 0
+		if animate_timer > 0.4:
+			sprite.frame = 1
+		if animate_timer > 0.8:
+			animate_timer = 0.0
 		var target := Utility.board_to_world(game_state.get_player_pos())
 		if (position - target).length_squared() < 10 * 10:
 			position = target

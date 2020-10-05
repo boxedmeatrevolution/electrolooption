@@ -453,7 +453,7 @@ func _get_legal_player_moves() -> Array:
 				or is_occupied_by_monster(pos):
 					break
 			if !CAN_GO_THROUGH_ROPES and is_occupied_by_rope(pos):
-				continue
+				break
 			elif is_threatened(pos) or will_be_occupied_by_monster(pos):
 				continue
 			ret.append(pos)
