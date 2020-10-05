@@ -9,6 +9,10 @@ onready var select := $Select
 onready var valid := false
 onready var sprite := $Sprite
 
+var death_timer := 0.0
+var DEATH_TIME := 1.5
+var dying := false
+
 var anchor := Vector2.ZERO
 
 var game_state : GameState
@@ -60,6 +64,16 @@ func _process(delta : float) -> void:
 			sprite.frame = 0
 			if randf() < 1.0 * delta:
 				zap_timer = 0.0
+	if dying:
+		death_timer += delta
+		var mod := 5.0 * death_timer / DEATH_TIME;
+		sprite.modulate = Color(1.0 + mod, 1.0 + mod, 1.0 + mod, 1.0)
+		if death_timer > DEATH_TIME:
+#			var monster_death := MonsterDeath.instance()
+#			monster_death.global_position = self.global_position
+#			get_parent().add_child(monster_death)
+			_clean_lightnings()
+			queue_free()
 	select.rotation += delta * (0.5 + select.frame)
 	if Utility.mode == Utility.MODE_PLAYER_REWIND && self.valid:
 		select.visible = true
@@ -78,8 +92,12 @@ func _rewind(idx: int) -> void:
 func _loop(loop : Array) -> void:
 	for loop_idx in loop:
 		if loop_idx == self.idx:
-			_clean_lightnings()
-			queue_free()
+			dying = true
+			var lightning := Lightning.instance()
+			lightning.start = self.anchor
+			lightning.target = Vector2(self.global_position.x, 0.0)
+			lightnings.append(lightning)
+			get_parent().add_child(lightning)
 			return
 	for loop_idx in loop:
 		if loop_idx < self.idx:
@@ -102,12 +120,14 @@ func _update_lightnings() -> void:
 			continue
 		elif y == neighbour_y && self.idx > neighbour:
 			continue
+		if abs(neighbour_pos.x - pos.x) == 1 or abs(neighbour_pos.y - pos.y) == 1:
+			continue
 		var lightning_dir := Vector2(sign(neighbour_pos.x - pos.x), sign(neighbour_pos.y - pos.y))
 		var lightning_from_pos := Vector2(0.5 * (lightning_dir.x + lightning_dir.y) * sprite.texture.get_width() / 4 * sprite.scale.x, 0.5 * (lightning_dir.x - lightning_dir.y) * sprite.texture.get_height() * sprite.scale.y)
 		var lightning := Lightning.instance()
+		lightning.start = self.anchor + lightning_from_pos - Vector2(0, 6)
+		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour]) + Vector2(0, -2) - lightning_from_pos
 		self.get_parent().add_child(lightning)
-		lightning.global_position = self.anchor + lightning_from_pos
-		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour]) + Vector2(0, 4) - lightning_from_pos
 		lightnings.append(lightning)
 
 func _clean_lightnings() -> void:

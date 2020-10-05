@@ -3,6 +3,7 @@ extends Node2D
 const IVec := preload("res://scripts/IVec.gd").IVec
 const GameState := preload("res://scripts/GameState.gd")
 const MonsterDeath := preload("res://entities/MonsterDeath.tscn")
+const Lightning := preload("res://entities/Effects/Lightning.tscn")
 
 onready var sprite := $Sprite
 
@@ -14,7 +15,7 @@ const MODE_MOVING := 1
 const MODE_ATTACKING := 2
 const MODE_DYING := 3
 
-const DEATH_TIME := 0.3
+const DEATH_TIME := 1.5
 
 var mode := MODE_DEFAULT
 var attack_timer := 0.0
@@ -74,6 +75,10 @@ func _attack(idx: int) -> void:
 func _death(idx: int) -> void:
 	if idx == self.idx:
 		mode = MODE_DYING
+		var lightning := Lightning.instance()
+		lightning.position = Vector2(0, -1)
+		lightning.target = Vector2(self.global_position.x, 0.0)
+		add_child(lightning)
 
 func _prepare(idx: int) -> void:
 	# Monster AI goes here.

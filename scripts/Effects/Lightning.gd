@@ -5,6 +5,7 @@ export var target := Vector2(0, 0)
 var points := []
 var rng := RandomNumberGenerator.new()
 var segs_start = null
+var start = null
 
 const LENGTH_PER_SEGMENT := 10.0
 const NORMAL := 32.0
@@ -17,6 +18,8 @@ func _ready() -> void:
 	var num_segments := max(int(distance / LENGTH_PER_SEGMENT), 2)
 	if segs_start != null:
 		num_segments = segs_start
+	if start != null:
+		global_position = start
 	for i in range(0, num_segments):
 		points.append(0.0)
 		line.add_point(Vector2.ZERO)
@@ -45,6 +48,6 @@ func _process(delta: float) -> void:
 		var tangent := end * i / (points.size() - 1)
 		var normal : Vector2 = NORMAL * points[i] * Vector2(
 			end.y,
-			end.x
+			-end.x
 		).normalized()
 		line.set_point_position(i, tangent + normal)

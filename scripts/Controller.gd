@@ -61,11 +61,15 @@ func _ready() -> void:
 	player.game_state = game_state
 	game_state.connect("on_phase_change", self, "_phase_change")
 	game_state.connect("on_player_place_rewind", self, "_place_rewind")
+	game_state.connect("on_player_loop", self, "_on_loop")
 	_add_player_move_tiles()
 	player_rewind_button.position = Vector2(140, 1080 - 140)
 	player_place_rewind_button.position = Vector2(400, 1080 - 140)
 	background.add_child(player_rewind_button)
 	background.add_child(player_place_rewind_button)
+
+func _on_loop() -> void:
+	phase_timer += 1.8
 
 func _process(delta: float) -> void:
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
