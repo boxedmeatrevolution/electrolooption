@@ -46,21 +46,19 @@ func _rewind(idx: int) -> void:
 	print("rewind ", idx)
 	if idx == self.idx:
 		queue_free()
-	elif idx < self.idx:
+	else:
 		self.idx -= 1
 		_update_lightnings()
 
 func _loop(loop : Array) -> void:
-	print("loop ", loop)
-	var update := true
 	for loop_idx in loop:
 		if loop_idx == self.idx:
 			queue_free()
-			update = false
-		elif loop_idx < self.idx:
+			return
+	for loop_idx in loop:
+		if loop_idx < self.idx:
 			self.idx -= 1
-	if update:
-		_update_lightnings()
+	_update_lightnings()
 
 func _place_rewind() -> void:
 	_update_lightnings()
