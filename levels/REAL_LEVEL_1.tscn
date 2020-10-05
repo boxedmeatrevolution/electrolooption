@@ -22,7 +22,7 @@ texture = ExtResource( 1 )
 [node name="Main" type="YSort" parent="."]
 
 [node name="Player" parent="Main" instance=ExtResource( 2 )]
-position = Vector2( 688.55, 712.179 )
+position = Vector2( 778.93, 662.232 )
 
 [node name="Block3" parent="Main" instance=ExtResource( 4 )]
 position = Vector2( 1046.82, 597.732 )
