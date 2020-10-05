@@ -38,7 +38,8 @@ const levels := [
 	"res://levels/Dialogue_9.tscn",
 	"res://levels/REAL_LEVEL_9.tscn",
 	"res://levels/Dialogue_10.tscn",
-	"res://levels/REAL_LEVEL_10.tscn"
+	"res://levels/REAL_LEVEL_10.tscn",
+	"res://levels/Dialogue_11.tscn"
 ]
 
 var current_level := 0
