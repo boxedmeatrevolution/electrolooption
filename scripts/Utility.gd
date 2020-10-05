@@ -19,7 +19,12 @@ const MODE_ENEMY_TURN := 4
 const levels := [
 	"res://levels/MainMenu.tscn",
 	"res://levels/Instructions.tscn",
-	"res://levels/Level1.tscn"
+	"res://levels/REAL_LEVEL_1.tscn",
+	"res://levels/REAL_LEVEL_2.tscn",
+	"res://levels/REAL_LEVEL_3.tscn",
+	"res://levels/REAL_LEVEL_4.tscn",
+	"res://levels/REAL_LEVEL_5.tscn",
+	"res://levels/REAL_LEVEL_6.tscn",
 ]
 
 var current_level := 0

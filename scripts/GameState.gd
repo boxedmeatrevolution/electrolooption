@@ -183,7 +183,7 @@ func phase_complete() -> int:
 		## Start of a new turn!
 		turn += 1
 		_legal_player_moves = _get_legal_player_moves()
-		var can_move := _legal_player_moves.empty()
+		var can_move := !_legal_player_moves.empty()
 		var can_place_rewind := test_player_place_rewind()
 		var can_rewind := false
 		for i in range(0, _player_rewind_pos.size()):
@@ -214,6 +214,8 @@ func phase_complete() -> int:
 		_prepared_player_move = null
 		_prepared_player_place_rewind = false
 		_prepared_player_rewind = -1
+		## Check if the game was won
+		_check_if_game_win()
 	elif phase == PHASE_MONSTER_ATTACK:
 		for idx in _prepared_monster_attack.keys():
 			emit_signal("on_monster_attack", idx)
@@ -247,6 +249,9 @@ func phase_complete() -> int:
 		_prepared_monster_spawn = {}
 	emit_signal("on_phase_change", phase)
 	return phase
+
+func _check_if_game_win():
+	return _monsters.size() == 1
 
 func _kill_monster(idx: int):
 	_monsters.erase(idx)
