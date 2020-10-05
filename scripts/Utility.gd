@@ -19,15 +19,25 @@ const MODE_ENEMY_TURN := 4
 const levels := [
 	"res://levels/MainMenu.tscn",
 	"res://levels/Instructions.tscn",
+	"res://levels/Dialogue_1.tscn",
 	"res://levels/REAL_LEVEL_1.tscn",
+	"res://levels/Dialogue_2.tscn",
 	"res://levels/REAL_LEVEL_2.tscn",
+	"res://levels/Dialogue_3.tscn",
 	"res://levels/REAL_LEVEL_3.tscn",
+	"res://levels/Dialogue_4.tscn",
 	"res://levels/REAL_LEVEL_4.tscn",
+	"res://levels/Dialogue_5.tscn",
 	"res://levels/REAL_LEVEL_5.tscn",
+	"res://levels/Dialogue_6.tscn",
 	"res://levels/REAL_LEVEL_6.tscn",
+	"res://levels/Dialogue_7.tscn",
 	"res://levels/REAL_LEVEL_7.tscn",
+	"res://levels/Dialogue_8.tscn",
 	"res://levels/REAL_LEVEL_8.tscn",
+	"res://levels/Dialogue_9.tscn",
 	"res://levels/REAL_LEVEL_9.tscn",
+	"res://levels/Dialogue_10.tscn",
 	"res://levels/REAL_LEVEL_10.tscn"
 ]
 

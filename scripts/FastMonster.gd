@@ -23,10 +23,12 @@ func _prepare(idx: int) -> void:
 	var delta_x := player_pos.x - pos.x
 	var delta_y := player_pos.y - pos.y
 	
-	if delta_x <= 1 and delta_y <= 1:
+	if abs(delta_x) <= 1 and abs(delta_y) <= 1:
 		var attacktiles := []
 		for i in [-1, 0, 1]:
 			for j in [-1, 0, 1]:
+				if abs(i) == 1 and abs(j) == 1:
+					continue
 				attacktiles.append(IVec.new(player_pos.x + i, player_pos.y + j))
 		if game_state.prepare_monster_attack(idx, attacktiles):
 			Utility.create_monster_attacks(get_parent(), AttackParent, self.idx, self.game_state, attacktiles)
@@ -37,9 +39,11 @@ func _prepare(idx: int) -> void:
 		for j in [-2, -1, 0, 1, 2]:
 			if i == 0 and j == 0:
 				continue
-			var poss_move := IVec.new(pos + i, pos + j)
+			var poss_move := IVec.new(pos.x + i, pos.y + j)
 			if game_state.test_monster_move(idx, poss_move):
-				possibles_moves.append(IVec.new(pos + i, pos + j))
+				possibles_moves.append(poss_move)
 	possibles_moves.sort_custom(self, "move_sorter")
+	for move in possibles_moves:
+		print("move: ", move.x, " ", move.y)
 	var next_move = possibles_moves.front()
 	game_state.prepare_monster_move(idx, next_move)

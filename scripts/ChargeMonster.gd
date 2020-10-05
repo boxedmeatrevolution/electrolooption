@@ -17,12 +17,12 @@ func _prepare(idx: int) -> void:
 	var charge_dir := IVec.new(0, 0)
 	
 	if abs(delta_x) <= abs(delta_y):
-		if game_state.test_monster_move(idx, next_y):
+		if !game_state.test_monster_move(idx, next_y):
 			charge_dir = IVec.new(sign(delta_x), 0)
 		else:
 			charge_dir = IVec.new(0, sign(delta_y))
 	else:
-		if game_state.test_monster_move(idx, next_x):
+		if !game_state.test_monster_move(idx, next_x):
 			charge_dir = IVec.new(0, sign(delta_y))
 		else:
 			charge_dir = IVec.new(sign(delta_x), 0)
