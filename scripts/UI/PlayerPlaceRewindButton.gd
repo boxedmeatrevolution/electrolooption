@@ -21,7 +21,7 @@ func _click(viewport: Node2D, event: InputEvent, idx: int) -> void:
 	if event is InputEventMouseButton:
 		if event.pressed && event.button_index == BUTTON_LEFT:
 			if enabled:
-				if Utility.mode == Utility.MODE_PLAYER_DEFAULT:
+				if Utility.mode == Utility.MODE_PLAYER_DEFAULT or Utility.mode == Utility.MODE_PLAYER_REWIND:
 					Utility.mode = Utility.MODE_PLAYER_PLACE_REWIND
 				elif Utility.mode == Utility.MODE_PLAYER_PLACE_REWIND:
 					Utility.mode = Utility.MODE_PLAYER_DEFAULT
