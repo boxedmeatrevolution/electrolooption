@@ -350,33 +350,6 @@ func _find_path_to_node(idx_start: int, idx_end) -> Array:
 				break
 	
 	return path
-#	var to_visit := [idx_start]
-#	var visited := []
-#	var level := [ 0 ]
-#	var done := false
-#	while !to_visit.empty():
-#		var visit : int = to_visit.pop_back()
-#		var current_level : int = level.pop_back()
-#		visited.append(visit)
-#		for neighbour_idx in _connection_map[visit]:
-#			if neighbour_idx in visited:
-#				continue
-#			to_visit.append(neighbour_idx)
-#			level.push_back(current_level + 1)
-#			if neighbour_idx == idx_end:
-#				done = true
-#				break
-#		if done:
-#			break
-#	if to_visit.empty():
-#		return []
-#	var path := []
-#	for current_level in range(0, level.back() + 1):
-#		path.append(to_visit.front())
-#		while level.front() == current_level:
-#			level.pop_front()
-#			to_visit.pop_front()
-#	return path
 
 func _calc_connection_map() -> void:
 	_connection_map.clear()
