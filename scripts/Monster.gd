@@ -23,6 +23,10 @@ var attack_timer := 0.0
 var death_timer := 0.0
 var animation_timer := 0.0
 
+var audio_move := AudioStreamPlayer2D.new()
+var audio_attack := AudioStreamPlayer2D.new()
+var audio_screech := AudioStreamPlayer2D.new()
+
 func setup(game_state: GameState, idx : int) -> void:
 	self.game_state = game_state
 	self.idx = idx
@@ -30,6 +34,14 @@ func setup(game_state: GameState, idx : int) -> void:
 	self.game_state.connect("on_monster_attack", self, "_attack")
 	self.game_state.connect("on_monster_death", self, "_death")
 	self.game_state.connect("on_monster_prepare", self, "_prepare")
+	audio_move.stream = preload("res://sounds/monster_move.wav")
+	audio_attack.stream = preload("res://sounds/monster_attack.wav")
+	audio_screech.stream = preload("res://sounds/monster_screech.wav")
+	audio_move.volume_db = -20
+	audio_attack.volume_db = -5
+	self.add_child(audio_move)
+	self.add_child(audio_attack)
+	self.add_child(audio_screech)
 	position = Utility.board_to_world(self.game_state.get_monster_pos(idx))
 
 func _ready():
@@ -48,17 +60,23 @@ func _process(delta: float) -> void:
 	if mode == MODE_DEFAULT:
 		pass
 	elif mode == MODE_MOVING:
+		if !audio_move.playing:
+			audio_move.play()
 		var target := Utility.board_to_world(self.game_state.get_monster_pos(idx))
 		position += -clamp(10 * delta, 0, 1) * (position - target)
 		if (position - target).length_squared() < 5 * 5:
 			position = target
 			mode = MODE_DEFAULT
 	elif mode == MODE_ATTACKING:
+		if !audio_attack.playing:
+			audio_attack.play()
 		sprite.frame = 2
 		attack_timer -= delta
 		if attack_timer < 0:
 			mode = MODE_DEFAULT
 	elif mode == MODE_DYING:
+		if death_timer == 0.0:
+			audio_screech.play()
 		death_timer += delta
 		var mod := 5.0 * death_timer / DEATH_TIME;
 		sprite.modulate = Color(1.0 + mod, 1.0 + mod, 1.0 + mod, 1.0)

@@ -1,5 +1,7 @@
 extends "res://scripts/Monster.gd"
 
+const Attack := preload("res://entities/Monster/FastMonsterAttack.tscn")
+
 func _prepare(idx: int) -> void:
 	# Monster AI goes here.
 	if idx != self.idx:
@@ -36,3 +38,4 @@ func _prepare(idx: int) -> void:
 			IVec.new(pos.x + 1, pos.y + 1),
 		]
 	game_state.prepare_monster_attack(idx, tiles)
+	Utility.create_monster_attacks(get_parent(), Attack, self.idx, self.game_state, tiles)

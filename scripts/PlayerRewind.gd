@@ -96,7 +96,6 @@ func _process(delta : float) -> void:
 		select.visible = false
 
 func _rewind(idx: int) -> void:
-	print("rewind ", idx)
 	if idx == self.idx:
 		_clean_lightnings()
 		queue_free()

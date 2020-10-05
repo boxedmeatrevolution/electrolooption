@@ -29,6 +29,14 @@ const levels := [
 
 var current_level := 0
 
+func create_monster_attacks(parent : Node, attack_type : PackedScene, idx : int, game_state : Object, tiles : Array):
+	for tile in tiles:
+		var attack := attack_type.instance()
+		attack.board_pos = tile
+		attack.idx = idx
+		attack.game_state = game_state
+		parent.add_child(attack)
+
 func next_level(root):
 	current_level += 1
 	root.change_scene(levels[current_level])
