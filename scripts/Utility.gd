@@ -16,6 +16,21 @@ const MODE_PLAYER_REWIND := 2
 const MODE_PLAYER_PLACE_REWIND := 3
 const MODE_ENEMY_TURN := 4
 
+const levels := [
+	"res://levels/MainMenu.tscn",
+	"res://levels/Instructions.tscn",
+	"res://levels/Level1.tscn"
+]
+
+var current_level := 0
+
+func next_level(root):
+	current_level += 1
+	root.change_scene(levels[current_level])
+
+func restart_level(root):
+	root.reload_current_scene()
+
 var mode := MODE_PLAYER_DEFAULT
 
 var timer := 0.0
