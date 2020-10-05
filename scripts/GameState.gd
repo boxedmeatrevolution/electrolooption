@@ -27,7 +27,7 @@ signal on_player_spawn()  ## TODO
 signal on_player_move()
 signal on_player_rewind(idx)
 signal on_player_place_rewind()
-signal on_player_loop(idx)
+signal on_player_loop(idxs)
 signal on_player_death()  ## TODO
 signal on_monster_spawn(idx)  ## TODO
 signal on_monster_prepare(idx)
@@ -52,6 +52,7 @@ var _player_rewind_pos := []
 var _legal_player_moves := []
 var _legal_monster_spawns := []
 var _rope_pos := []
+var _connection_map := []
 
 func _init(player_pos: IVec, monster_pos: Array, block_pos: Array, dimensions: IVec):
 	WIDTH = dimensions.x
@@ -79,6 +80,9 @@ func _do_loop(idx):
 	## 3. Tiles that are unfilled are bounded by ropes: KILL THE MONSTERS INSIDE
 	## 4. Remove player clones that were destroyed when the loop closed
 	
+	var loop := _find_loop(idx)
+	if loop.empty():
+		return
 	## rope map is a 2D boolean array for tiles with ropes on them
 	var rope_map = []
 	for x in range(WIDTH):
@@ -87,11 +91,11 @@ func _do_loop(idx):
 			rope_map[x].append(false)
 	
 	## Populate the rope map
-	for i in range(idx, _player_rewind_pos.size()):
-		var pt = _player_rewind_pos[i]
-		var next_pt = _player_rewind_pos[idx]
-		if i < _player_rewind_pos.size()-1:
-			next_pt = _player_rewind_pos[i+1]
+	for i in range(idx, loop.size()):
+		var pt = _player_rewind_pos[loop[i]]
+		var next_pt = _player_rewind_pos[loop[idx]]
+		if i < loop.size()-1:
+			next_pt = _player_rewind_pos[loop[i+1]]
 		rope_map[pt.x][pt.y] = true
 		
 		var dist = next_pt.minus(pt)
@@ -140,11 +144,13 @@ func _do_loop(idx):
 		_prepared_monster_attack.erase(i)
 		emit_signal("on_monster_death", i)
 		
+	_calc_connection_map()
+	_calc_rope_pos()
+	emit_signal("on_player_loop", loop)
 	## Remove player clones
-	if idx == 0:
-		_player_rewind_pos = []
-	else:
-		_player_rewind_pos = _player_rewind_pos.slice(0, idx - 1)
+	loop.sort()
+	for idx in loop:
+		_player_rewind_pos.remove(idx)
 
 func _do_fill(x, y, fill_map, rope_map):
 	fill_map[x][y] = true
@@ -174,44 +180,20 @@ func phase_complete() -> int:
 			emit_signal("on_game_lose")
 	elif phase == PHASE_PLAYER_ACTION:
 		## Player either moves or rewinds
-		if MANUAL_REWIND_PLACE:
-			if _prepared_player_place_rewind:
-				## Check if a loop was completed
-				var has_loop := false
-				for i in range(_player_rewind_pos.size()):
-					if _player_rewind_pos[i].eq(_player_pos):
-						## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
-						_do_loop(i)
-						has_loop = true
-						emit_signal("on_player_loop", i)
-						break
-				if !has_loop:
-					_player_rewind_pos.append(_player_pos.copy())
-					emit_signal("on_player_place_rewind")
-				_calc_rope_pos()
-			if _prepared_player_move != null:
-				_player_pos = _prepared_player_move
-				emit_signal("on_player_move")
-		if !MANUAL_REWIND_PLACE:
-			if _prepared_player_move != null:
-				_player_rewind_pos.append(_player_pos.copy())
-				emit_signal("on_player_place_rewind")
-				_player_pos = _prepared_player_move
-				## Check if a loop was completed
-				for i in range(_player_rewind_pos.size()):
-					if _player_rewind_pos[i].eq(_player_pos):
-						## COMPLETED A LOOOOOOP O_O WOWOWOWWOWOWOWWO
-						_do_loop(i)
-						emit_signal("on_player_loop", i)
-						break
-				_calc_rope_pos()
-				emit_signal("on_player_move")
+		if _prepared_player_place_rewind:
+			## Check if a loop was completed
+			_player_rewind_pos.append(_player_pos.copy())
+			_calc_connection_map()
+			_calc_rope_pos()
+			_do_loop(_player_rewind_pos.size() - 1)
+			emit_signal("on_player_place_rewind")
+		if _prepared_player_move != null:
+			_player_pos = _prepared_player_move
+			emit_signal("on_player_move")
 		if _prepared_player_rewind != -1:
 			_player_pos = _player_rewind_pos[_prepared_player_rewind]
-			if _prepared_player_rewind == 0:
-				_player_rewind_pos = []
-			else:
-				_player_rewind_pos = _player_rewind_pos.slice(0, _prepared_player_rewind - 1)
+			_player_rewind_pos.remove(_prepared_player_rewind)
+			_calc_connection_map()
 			_calc_rope_pos()
 			emit_signal("on_player_rewind", _prepared_player_rewind)
 		## Reset "prepared" actions
@@ -326,21 +308,102 @@ func _get_line(a: IVec, b: IVec) -> Array:
 		line.append(a)
 	return line
 
+func _find_loop(idx: int) -> Array:
+	var result := _find_path_to_node(idx, idx)
+	print("find loop ", result)
+	if result.empty():
+		return result
+	else:
+		return result.slice(1, result.size() - 1)
+
+func _find_path_to_node(idx_start: int, idx_end) -> Array:
+	var to_visit := [idx_start]
+	var visited := []
+	var level := [ 0 ]
+	var done := false
+	while !to_visit.empty():
+		var visit : int = to_visit.pop_back()
+		var current_level : int = level.pop_back()
+		visited.append(visit)
+		for neighbour_idx in _connection_map[visit]:
+			if neighbour_idx in visited:
+				continue
+			to_visit.append(neighbour_idx)
+			level.push_back(current_level + 1)
+			if neighbour_idx == idx_end:
+				done = true
+				break
+		if done:
+			break
+	if to_visit.empty():
+		return []
+	var path := []
+	for current_level in range(0, level.back() + 1):
+		path.append(to_visit.front())
+		while level.front() == current_level:
+			level.pop_front()
+			to_visit.pop_front()
+	return path
+
+func _calc_connection_map() -> void:
+	_connection_map.clear()
+	_connection_map.resize(_player_rewind_pos.size())
+	for idx in range(0, _player_rewind_pos.size()):
+		_connection_map[idx] = []
+	for idx in range(0, _player_rewind_pos.size()):
+		var pos : IVec = _player_rewind_pos[idx]
+		for idx_2 in range(idx + 1, _player_rewind_pos.size()):
+			var pos_2 : IVec = _player_rewind_pos[idx_2]
+			if pos.x == pos_2.x:
+				var lower := int(min(pos.y, pos_2.y))
+				var upper := int(max(pos.y, pos_2.y))
+				var blocked := false
+				for y in range(lower + 1, upper):
+					var new_pos := IVec.new(pos.x, y)
+					if is_occupied_by_block(new_pos) or is_occupied_by_past_player(new_pos):
+						blocked = true
+						break
+				if !blocked:
+					_connection_map[idx].append(idx_2)
+					_connection_map[idx_2].append(idx)
+			elif pos.y == pos_2.y:
+				var lower := int(min(pos.x, pos_2.x))
+				var upper := int(max(pos.x, pos_2.x))
+				var blocked := false
+				for x in range(lower + 1, upper):
+					var new_pos := IVec.new(x, pos.y)
+					if is_occupied_by_block(new_pos) or is_occupied_by_past_player(new_pos):
+						blocked = true
+						break
+				if !blocked:
+					_connection_map[idx].append(idx_2)
+					_connection_map[idx_2].append(idx)
+
 func _calc_rope_pos():
 	_rope_pos = []
-	if _player_rewind_pos.size() == 0:
-		return
-	var pt = _player_rewind_pos[0]
-	_rope_pos.append(_player_rewind_pos[0])
-	for i in range(_player_rewind_pos.size()):
-		pt = _player_rewind_pos[i]
-		var next_pt = _player_pos
-		if i < _player_rewind_pos.size() - 1:
-			next_pt = _player_rewind_pos[i + 1]
-		var line = _get_line(pt, next_pt)
-		if line.size() > 1:
-			for j in range(1, line.size()):
-				_rope_pos.append(line[j])
+	for idx in range(0, _connection_map.size()):
+		for idx_2 in _connection_map[idx]:
+			var pos : IVec = _player_rewind_pos[idx]
+			var pos_2 : IVec = _player_rewind_pos[idx_2]
+			if pos.x == pos_2.x:
+				for y in range(int(min(pos.y, pos_2.y)), int(max(pos.y, pos_2.y)) + 1):
+					_rope_pos.append(IVec.new(pos.x, y))
+			else:
+				for x in range(int(min(pos.x, pos_2.x)), int(max(pos.x, pos_2.x)) + 1):
+					_rope_pos.append(IVec.new(x, pos.y))
+#	if _player_rewind_pos.size() == 0:
+#		return
+#	var pt = _player_rewind_pos[0]
+#	_rope_pos.append(_player_rewind_pos[0])
+#	for i in range(_player_rewind_pos.size()):
+#		pt = _player_rewind_pos[i]
+#		var next_pt = _player_pos
+#		if i < _player_rewind_pos.size() - 1:
+#			next_pt = _player_rewind_pos[i + 1]
+#		var line = _get_line(pt, next_pt)
+#		if line.size() > 1:
+#			for j in range(1, line.size()):
+#				_rope_pos.append(line[j])
 
 #################
 ## PLAYER!!!!   #
@@ -407,12 +470,7 @@ func test_player_place_rewind() -> bool:
 	var pos := _player_pos
 	if is_threatened(pos) or will_be_occupied_by_monster(pos):
 		return false
-	if _player_rewind_pos.empty():
-		return true
-	# Check that rewind is being placed in the same row or column or diagonal as
-	# previous rewind.
-	var rewind_pos : IVec = _player_rewind_pos[-1]
-	return Utility.is_rooks_move(pos, rewind_pos, false)
+	return true
 	
 func prepare_player_move(pos: IVec) -> bool:
 	if !test_player_move(pos):

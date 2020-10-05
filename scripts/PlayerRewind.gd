@@ -1,8 +1,8 @@
 extends Node2D
 
 const GameState := preload("res://scripts/GameState.gd")
+const Lightning := preload("res://entities/Effects/Lightning.tscn")
 
-onready var lightning := $Lightning
 onready var area := $Area2D
 onready var select := $Select
 onready var valid := false
@@ -11,12 +11,15 @@ var game_state : GameState
 var idx : int
 var next : Node2D
 
+var lightnings := []
+
 func setup(game_state: GameState):
 	self.game_state = game_state
 	self.idx = game_state.get_past_player_pos().size() - 1
 	self.game_state.connect("on_player_rewind", self, "_rewind")
-	self.game_state.connect("on_player_loop", self, "_rewind")
+	self.game_state.connect("on_player_loop", self, "_loop")
 	self.game_state.connect("on_phase_change", self, "_phase_change")
+	self.game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	position = Utility.board_to_world(self.game_state.get_past_player_pos()[idx]) + Vector2(0, 1)
 	self.valid = self.game_state.test_player_rewind(idx)
 
@@ -35,22 +38,40 @@ func _process(delta : float) -> void:
 		select.visible = true
 	else:
 		select.visible = false
-	var past := game_state.get_past_player_pos()
-	var player_pos := game_state.get_player_pos()
-	if past.size() - 1 == idx:
-		if GameState.MANUAL_REWIND_PLACE:
-			lightning.target = self.global_position
-		else:
-			lightning.target = Utility.board_to_world(player_pos)
-	else:
-		lightning.target = Utility.board_to_world(past[idx + 1])
 
 func _rewind(idx: int) -> void:
-	# On rewind or loop, if this no longer exists, then destroy it.
-	if idx < self.idx:
+	print("rewind ", idx)
+	if idx == self.idx:
 		queue_free()
-	elif idx == self.idx:
-		queue_free()
+	elif idx < self.idx:
+		self.idx -= 1
+		_update_lightnings()
+
+func _loop(loop : Array) -> void:
+	print("loop ", loop)
+	var update := true
+	for loop_idx in loop:
+		if loop_idx == self.idx:
+			queue_free()
+			update = false
+		elif loop_idx < self.idx:
+			self.idx -= 1
+	if update:
+		_update_lightnings()
+
+func _place_rewind() -> void:
+	_update_lightnings()
+
+func _update_lightnings() -> void:
+	for lightning in self.lightnings:
+		lightning.queue_free()
+	lightnings.clear()
+	var neighbours : Array = game_state._connection_map[self.idx]
+	for neighbour in neighbours:
+		var lightning := Lightning.instance()
+		lightning.global_position = self.position
+		lightning.target = Utility.board_to_world(game_state.get_past_player_pos()[neighbour])
+		self.get_parent().add_child(lightning)
 
 func _input_event(viewport: Node2D, event: InputEvent, ev_idx: int):
 	if event is InputEventMouseButton:
