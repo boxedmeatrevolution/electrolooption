@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://tileset/background_nature_7.png" type="Texture" id=1]
 [ext_resource path="res://entities/Player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://entities/Monster.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scripts/DumbChargeMonster.gd" type="Script" id=4]
+[ext_resource path="res://scripts/DumbFastMonster.gd" type="Script" id=4]
 [ext_resource path="res://entities/Controller.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scripts/DumbLaserMonster.gd" type="Script" id=6]
 [ext_resource path="res://entities/Block.tscn" type="PackedScene" id=7]
 
 [node name="Level1" type="Node2D"]
@@ -21,18 +22,26 @@ texture = ExtResource( 1 )
 
 [node name="Main" type="YSort" parent="."]
 
-[node name="Block3" parent="Main" instance=ExtResource( 7 )]
-position = Vector2( 1058.39, 832.445 )
-
 [node name="Block" parent="Main" instance=ExtResource( 7 )]
-position = Vector2( 478.062, 604.118 )
+position = Vector2( 837.203, 480.44 )
 
 [node name="Block2" parent="Main" instance=ExtResource( 7 )]
-position = Vector2( 480.44, 487.575 )
+position = Vector2( 948.99, 547.036 )
+
+[node name="Block3" parent="Main" instance=ExtResource( 7 )]
+position = Vector2( 1048.88, 596.982 )
 
 [node name="Player" parent="Main" instance=ExtResource( 2 )]
-position = Vector2( 778.93, 647.962 )
+position = Vector2( 771.795, 640.826 )
 
-[node name="Monster3" parent="Main" instance=ExtResource( 3 )]
-position = Vector2( 1151.15, 428.114 )
+[node name="Monster6" parent="Main" instance=ExtResource( 3 )]
+position = Vector2( 1158.28, 309.194 )
 script = ExtResource( 4 )
+
+[node name="Monster7" parent="Main" instance=ExtResource( 3 )]
+position = Vector2( 1353.31, 425.736 )
+script = ExtResource( 4 )
+
+[node name="Monster8" parent="Main" instance=ExtResource( 3 )]
+position = Vector2( 1146.39, 423.358 )
+script = ExtResource( 6 )
