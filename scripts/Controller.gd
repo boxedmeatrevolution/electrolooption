@@ -14,6 +14,7 @@ const MonsterMoveTile := preload("res://entities/Tiles/MonsterMoveTile.tscn")
 const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
 const PlayerRewindButton := preload("res://entities/UI/PlayerRewindButton.tscn")
 const PlayerPlaceRewindButton := preload("res://entities/UI/PlayerPlaceRewindButton.tscn")
+const GameOver := preload("res://entities/UI/GameOver.tscn")
 
 onready var main := get_tree().get_root().find_node("Main", true, false)
 onready var background := get_tree().get_root().find_node("Background", true, false)
@@ -28,6 +29,8 @@ var monster_spawn : MonsterSpawn
 var monster_attack_tiles := []
 var monster_move_tiles := []
 var player_move_tiles := []
+
+var lose_timer := -1.0
 
 var player_rewind_button := PlayerRewindButton.instance()
 var player_place_rewind_button := PlayerPlaceRewindButton.instance()
@@ -65,11 +68,15 @@ func _ready() -> void:
 	game_state.connect("on_player_place_rewind", self, "_place_rewind")
 	game_state.connect("on_player_loop", self, "_on_loop")
 	game_state.connect("on_player_rewind", self, "_rewind")
+	game_state.connect("on_game_lose", self, "_lose")
 	_add_player_move_tiles()
 	player_rewind_button.position = Vector2(140, 1080 - 140)
 	player_place_rewind_button.position = Vector2(400, 1080 - 140)
 	background.add_child(player_rewind_button)
 	background.add_child(player_place_rewind_button)
+
+func _lose() -> void:
+	lose_timer = 1.0
 
 func _on_loop(loop: Array) -> void:
 	print("LOOP COMPLETE")
@@ -80,6 +87,13 @@ func _rewind(idx : int) -> void:
 	audio_rewind.play()
 
 func _process(delta: float) -> void:
+	if lose_timer > 0.0:
+		lose_timer -= delta
+		if lose_timer <= 0.0:
+			lose_timer = INF
+			var game_over := GameOver.instance()
+			add_child(game_over)
+		return
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
 		phase_timer -= delta
 		if phase_timer < 0:
