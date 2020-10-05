@@ -15,6 +15,7 @@ const PlayerMoveTile := preload("res://entities/Tiles/PlayerMoveTile.tscn")
 const PlayerRewindButton := preload("res://entities/UI/PlayerRewindButton.tscn")
 const PlayerPlaceRewindButton := preload("res://entities/UI/PlayerPlaceRewindButton.tscn")
 const GameOver := preload("res://entities/UI/GameOver.tscn")
+const LevelWon := preload("res://entities/UI/LevelWon.tscn")
 
 onready var main := get_tree().get_root().find_node("Main", true, false)
 onready var background := get_tree().get_root().find_node("Background", true, false)
@@ -31,6 +32,7 @@ var monster_move_tiles := []
 var player_move_tiles := []
 
 var lose_timer := -1.0
+var win_timer := -1.0
 
 var player_rewind_button := PlayerRewindButton.instance()
 var player_place_rewind_button := PlayerPlaceRewindButton.instance()
@@ -69,6 +71,7 @@ func _ready() -> void:
 	game_state.connect("on_player_loop", self, "_on_loop")
 	game_state.connect("on_player_rewind", self, "_rewind")
 	game_state.connect("on_game_lose", self, "_lose")
+	game_state.connect("on_game_win", self, "_win")
 	_add_player_move_tiles()
 	player_rewind_button.position = Vector2(140, 1080 - 140)
 	player_place_rewind_button.position = Vector2(400, 1080 - 140)
@@ -78,8 +81,10 @@ func _ready() -> void:
 func _lose() -> void:
 	lose_timer = 1.0
 
+func _win() -> void:
+	win_timer = 1.0
+
 func _on_loop(loop: Array) -> void:
-	print("LOOP COMPLETE")
 	audio_loop_complete.play()
 	phase_timer += 1.5
 
@@ -92,7 +97,16 @@ func _process(delta: float) -> void:
 		if lose_timer <= 0.0:
 			lose_timer = INF
 			var game_over := GameOver.instance()
-			add_child(game_over)
+			game_over.position = Vector2(1920/2, 1080/2)
+			get_parent().add_child_below_node(main, game_over)
+		return
+	if win_timer > 0.0:
+		win_timer -= delta
+		if win_timer <= 0.0:
+			win_timer = INF
+			var level_won := LevelWon.instance()
+			level_won.position = Vector2(1920/2, 1080/2)
+			get_parent().add_child_below_node(main, level_won)
 		return
 	if game_state.phase != GameState.PHASE_PLAYER_PREPARE:
 		phase_timer -= delta
