@@ -2,6 +2,7 @@ extends Node2D
 
 const Blob := preload("res://entities/Effects/Blob.tscn")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
+const Poof := preload("res://entities/Effects/Poof.tscn")
 
 const NUM_BLOBS := 7
 const NUM_LIGHTNING := 4
@@ -13,6 +14,9 @@ var lightnings := []
 
 func _ready() -> void:
 	var parent := get_parent()
+	var poof := Poof.instance()
+	parent.add_child(poof)
+	poof.global_position = global_position + Vector2(0, 1)
 	blobs.resize(NUM_BLOBS)
 	lightnings.resize(NUM_BLOBS)
 	for i in range(0, NUM_BLOBS):

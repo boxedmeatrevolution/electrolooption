@@ -4,6 +4,7 @@ const IVec := preload("res://scripts/IVec.gd").IVec
 const GameState := preload("res://scripts/GameState.gd")
 const MonsterDeath := preload("res://entities/MonsterDeath.tscn")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
+const Poof := preload("res://entities/Effects/Poof.tscn")
 
 onready var sprite := $Sprite
 
@@ -30,6 +31,11 @@ func setup(game_state: GameState, idx : int) -> void:
 	self.game_state.connect("on_monster_death", self, "_death")
 	self.game_state.connect("on_monster_prepare", self, "_prepare")
 	position = Utility.board_to_world(self.game_state.get_monster_pos(idx))
+
+func _ready():
+	var poof := Poof.instance()
+	get_parent().add_child(poof)
+	poof.global_position = global_position + Vector2(0, 1)
 
 func _process(delta: float) -> void:
 	animation_timer += delta

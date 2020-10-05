@@ -3,6 +3,7 @@ extends Node2D
 const GameState := preload("res://scripts/GameState.gd")
 const Lightning := preload("res://entities/Effects/Lightning.tscn")
 const IVec := preload("res://scripts/IVec.gd").IVec
+const Poof := preload("res://entities/Effects/Poof.tscn")
 
 onready var area := $Area2D
 onready var select := $Select
@@ -37,6 +38,9 @@ func setup(game_state: GameState):
 
 func _ready():
 	_update_lightnings()
+	var poof := Poof.instance()
+	get_parent().add_child(poof)
+	poof.global_position = global_position + Vector2(0, 5)
 
 func _mouse_enter():
 	select.frame = 1
