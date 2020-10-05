@@ -22,20 +22,25 @@ texture = ExtResource( 1 )
 [node name="Main" type="YSort" parent="."]
 
 [node name="Block5" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 968.015, 309.194 )
-
-[node name="Block4" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 473.304, 487.575 )
+position = Vector2( 963.258, 306.816 )
 
 [node name="Block3" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 1427.05, 487.575 )
+position = Vector2( 1334.29, 544.657 )
 
 [node name="Block" parent="Main" instance=ExtResource( 4 )]
-position = Vector2( 956.122, 884.77 )
+position = Vector2( 956.122, 768.228 )
 
 [node name="Player" parent="Main" instance=ExtResource( 2 )]
-position = Vector2( 688.55, 712.179 )
+position = Vector2( 964.446, 529.041 )
 
 [node name="Monster" parent="Main" instance=ExtResource( 3 )]
-position = Vector2( 1013.2, 535.143 )
+position = Vector2( 965.632, 195.03 )
+script = ExtResource( 6 )
+
+[node name="Monster2" parent="Main" instance=ExtResource( 3 )]
+position = Vector2( 963.253, 860.986 )
+script = ExtResource( 6 )
+
+[node name="Monster3" parent="Main" instance=ExtResource( 3 )]
+position = Vector2( 1536.45, 537.521 )
 script = ExtResource( 6 )

@@ -16,7 +16,8 @@ const MONSTER_CAN_GO_THROUGH_ROPES := false
 const ROPES_KILL_ENEMIES := true
 const PLAYER_MAX_MOVE := 4
 const MANUAL_REWIND_PLACE := true
-const LIGHTNING_ZAPS_MONSTERS := true
+const LIGHTNING_ZAPS_MONSTERS := false
+const LIGHTNING_TRAPS_MONSTERS := true
 const MONSTERS_DO_NOT_RUN_INTO_DEATH := true
 const PLAYER_GETS_SLOWER_WITH_DROPS := true
 
@@ -545,6 +546,8 @@ func get_cached_legal_monster_spawns() -> Array:
 func test_monster_move(idx: int, pos: IVec) -> bool:
 	assert(idx in _monsters)
 	var mpos = _monster_pos[idx]
+	if LIGHTNING_TRAPS_MONSTERS and is_occupied_by_rope(mpos):
+		return false
 	var is_moving = !pos.eq(mpos)
 	var is_on_board = !(pos.x < 0 or pos.y < 0 or pos.x >= WIDTH or pos.y >= HEIGHT)
 	if is_moving \
