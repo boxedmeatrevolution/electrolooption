@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/bat_monster.png-fd707b07756ee3b617bc5f85cbd2c1f8.stex"
+path="res://.import/fast_monster.png-1e268a7801eaf97c8df9e486cdccdea6.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/bat_monster.png"
-dest_files=[ "res://.import/bat_monster.png-fd707b07756ee3b617bc5f85cbd2c1f8.stex" ]
+source_file="res://sprites/fast_monster.png"
+dest_files=[ "res://.import/fast_monster.png-1e268a7801eaf97c8df9e486cdccdea6.stex" ]
 
 [params]
 
