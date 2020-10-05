@@ -215,7 +215,8 @@ func phase_complete() -> int:
 		_prepared_player_place_rewind = false
 		_prepared_player_rewind = -1
 		## Check if the game was won
-		_check_if_game_win()
+		if _check_if_game_win():
+			emit_signal("on_game_win")
 	elif phase == PHASE_MONSTER_ATTACK:
 		for idx in _prepared_monster_attack.keys():
 			emit_signal("on_monster_attack", idx)
@@ -251,7 +252,7 @@ func phase_complete() -> int:
 	return phase
 
 func _check_if_game_win():
-	return _monsters.size() == 1
+	return _monsters.keys().size() == 0
 
 func _kill_monster(idx: int):
 	_monsters.erase(idx)
@@ -501,6 +502,7 @@ func test_player_place_rewind() -> bool:
 	# Check that not threatened.
 	var pos := _player_pos
 	if is_threatened(pos) or will_be_occupied_by_monster(pos) or is_occupied_by_past_player(pos):
+		## Check if placing it would create a loop
 		return false
 	return true
 	
